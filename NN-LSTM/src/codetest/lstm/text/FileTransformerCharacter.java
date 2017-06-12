@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import codetest.lstm.data.SequenceStorage;
+
 public class FileTransformerCharacter implements FileTransformer
 {
 	
@@ -69,7 +71,7 @@ public class FileTransformerCharacter implements FileTransformer
 			//---- Allocate memory and init pointer for sotring data
 			storage.allocateMemory(sequenceLengthTotal);
 			//---- Specify the max value could be encountered in the sequence
-			storage.setSequenceMax(vocabulary.length);
+			storage.setSequenceMax(vocabulary.length, vocabulary.length, vocabulary.length);
 
 			
 			int index = 0;
@@ -156,6 +158,43 @@ public class FileTransformerCharacter implements FileTransformer
 		int i=0;
 		for( Character c : validChars ) out[i++] = c;
 		return out;
+	}
+	
+	//------------------------------------------------------------
+	
+	@Override
+	public int decode (double[] distribution)
+	{
+		Random rng = new Random();
+		
+		double d = rng.nextDouble();
+		double sum = 0.0;
+
+		for( int i=0; i<distribution.length; i++ )
+		{
+			sum += distribution[i];
+			if( d <= sum ) return i;
+		}
+		
+		//---- DEBUG
+		try {throw new Exception ();}
+		catch (Exception e) {e.printStackTrace();}
+		
+		return -1;
+	}
+	
+	@Override
+	public double[] endocde (int value)
+	{
+		double[] output = new double[vocabulary.length];
+		
+		for (int i = 0; i < output.length; i++)
+		{
+			if (i == value) { output[i] = 1; }
+			else {output[i] = 0; }
+		}
+		
+		return null;
 	}
 	
 	

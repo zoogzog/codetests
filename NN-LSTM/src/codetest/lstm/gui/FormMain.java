@@ -10,7 +10,7 @@ import javax.swing.JPanel;
 
 public class FormMain 
 {
-	private final String DEFAULT_WINDOW_TITLE = "<1000MONKEYS1000>"; 
+	private final String DEFAULT_WINDOW_TITLE = "NN-LSTM"; 
 
 	//----------------------------------------------------------------
 	//---- Environment variables

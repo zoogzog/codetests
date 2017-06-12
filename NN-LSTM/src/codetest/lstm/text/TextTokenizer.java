@@ -148,6 +148,8 @@ public class TextTokenizer
 		}
 	}
 
+	//---------------------------------------------------------------------------------------
+	
 	public TextTokenizer ()
 	{
 		loadTablePOS();
@@ -157,6 +159,8 @@ public class TextTokenizer
 		loadPosDetector();
 	}
 
+	//---------------------------------------------------------------------------------------
+	
 	public String[] generateTokens (String str, boolean isExtendNegation)
 	{
 		String[] negationListShort = {"can't", "couldn't", "wouldn't", "shouldn't", "wont", "don't", "doesn't"};
@@ -190,6 +194,8 @@ public class TextTokenizer
 		return posTagger.tag(new String[]{token})[0];
 	}
 
+	//---------------------------------------------------------------------------------------
+	
 	public int[]  getDictionaryIndex (String[] tokenList)
 	{
 		Vector <Integer> output = new Vector <Integer>();
@@ -235,6 +241,8 @@ public class TextTokenizer
 		return -1;
 	}
 	
+	//---------------------------------------------------------------------------------------
+	
 	private String getTransformToDictionaryForm (String word)
 	{
 		String wordPos = generatePos(word);
@@ -259,6 +267,7 @@ public class TextTokenizer
 		return word;
 	}
 	
+	//---------------------------------------------------------------------------------------
 	
 	public String getDictionaryWord (int index)
 	{
@@ -275,13 +284,23 @@ public class TextTokenizer
 		return dictionaryTable.length;
 	}
 
+	//---------------------------------------------------------------------------------------
+	
+	//---- Generates a corpus related dictionary, saves it into a file
+	public void buildLocalDictionary (String pathCorpus, String pathDictionary)
+	{
+		
+	}
+	
+	//---------------------------------------------------------------------------------------
+	
 	public static void main (String[] args)
 	{
 		try
 		{
 			TextTokenizer txtdriver = new TextTokenizer();
 
-			String testStr = "Well that’s extremely helpful–those guys  took takes "
+			String testStr = "Well that extremely helpful hose guys  took takes "
 					+ "made makes make delivered sure do a great job over there. What it can't does is "
 					+ "takes a sentence like this brutally murdered by offensive killers hottest hotter longer sharper";
 			String[] tk = txtdriver.generateTokens(testStr, true);

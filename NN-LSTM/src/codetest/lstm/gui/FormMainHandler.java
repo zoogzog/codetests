@@ -108,7 +108,17 @@ public class FormMainHandler implements ActionListener, CallbackIteration
 			String txt = "";
 			String rsp = monkey.generate(null);
 			
-			fmlnk.getComponentPanel().textareaGeneratedText.setText(rsp);
+			rsp = rsp.replace('\n', ' ');
+			String[] data = rsp.split(" ");
+			
+			for (int k = 0; k < data.length; k++)
+			{
+				txt += data[k];
+			
+				if (k % 10 == 0) { txt += "\n"; }
+			}
+			
+			fmlnk.getComponentPanel().textareaGeneratedText.setText(txt);
 			
 		}
 	}
@@ -126,7 +136,6 @@ public class FormMainHandler implements ActionListener, CallbackIteration
 		if (filePath == "") { return; }
 		
 		fmlnk.getComponentPanel().buttonGenerateSample.setEnabled(true);
-		
 		
 		monkey.loadData(filePath, Settings.DEF_NNMINIBATCHSIZE, Settings.DEF_NNSEQUENCELENGTH);
 		monkey.loadNN("nnfile.zip");

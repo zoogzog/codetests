@@ -2,43 +2,6 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="lib-nlp/aopalliance-repackaged-2.5.0-b30.jar"/>
-	<classpathentry kind="lib" path="lib-nlp/grizzly-framework-2.3.28.jar"/>
-	<classpathentry kind="lib" path="lib-nlp/grizzly-http-2.3.28.jar"/>
-	<classpathentry kind="lib" path="lib-nlp/grizzly-http-server-2.3.28.jar"/>
-	<classpathentry kind="lib" path="lib-nlp/hk2-api-2.5.0-b30.jar"/>
-	<classpathentry kind="lib" path="lib-nlp/hk2-locator-2.5.0-b30.jar"/>
-	<classpathentry kind="lib" path="lib-nlp/hk2-utils-2.5.0-b30.jar"/>
-	<classpathentry kind="lib" path="lib-nlp/hppc-0.7.1.jar"/>
-	<classpathentry kind="lib" path="lib-nlp/jackson-annotations-2.8.4.jar"/>
-	<classpathentry kind="lib" path="lib-nlp/jackson-core-2.8.4.jar"/>
-	<classpathentry kind="lib" path="lib-nlp/jackson-databind-2.8.4.jar"/>
-	<classpathentry kind="lib" path="lib-nlp/jackson-jaxrs-base-2.8.4.jar"/>
-	<classpathentry kind="lib" path="lib-nlp/jackson-jaxrs-json-provider-2.8.4.jar"/>
-	<classpathentry kind="lib" path="lib-nlp/jackson-module-jaxb-annotations-2.8.4.jar"/>
-	<classpathentry kind="lib" path="lib-nlp/javassist-3.20.0-GA.jar"/>
-	<classpathentry kind="lib" path="lib-nlp/javax.annotation-api-1.2.jar"/>
-	<classpathentry kind="lib" path="lib-nlp/javax.inject-2.5.0-b30.jar"/>
-	<classpathentry kind="lib" path="lib-nlp/javax.ws.rs-api-2.0.1.jar"/>
-	<classpathentry kind="lib" path="lib-nlp/jcommander-1.48.jar"/>
-	<classpathentry kind="lib" path="lib-nlp/jersey-client-2.25.jar"/>
-	<classpathentry kind="lib" path="lib-nlp/jersey-common-2.25.jar"/>
-	<classpathentry kind="lib" path="lib-nlp/jersey-container-grizzly2-http-2.25.jar"/>
-	<classpathentry kind="lib" path="lib-nlp/jersey-entity-filtering-2.25.jar"/>
-	<classpathentry kind="lib" path="lib-nlp/jersey-guava-2.25.jar"/>
-	<classpathentry kind="lib" path="lib-nlp/jersey-media-jaxb-2.25.jar"/>
-	<classpathentry kind="lib" path="lib-nlp/jersey-media-json-jackson-2.25.jar"/>
-	<classpathentry kind="lib" path="lib-nlp/jersey-server-2.25.jar"/>
-	<classpathentry kind="lib" path="lib-nlp/morfologik-fsa-2.1.3.jar"/>
-	<classpathentry kind="lib" path="lib-nlp/morfologik-fsa-builders-2.1.3.jar"/>
-	<classpathentry kind="lib" path="lib-nlp/morfologik-stemming-2.1.3.jar"/>
-	<classpathentry kind="lib" path="lib-nlp/morfologik-tools-2.1.3.jar"/>
-	<classpathentry kind="lib" path="lib-nlp/opennlp-brat-annotator-1.8.0.jar"/>
-	<classpathentry kind="lib" path="lib-nlp/opennlp-morfologik-addon-1.8.0.jar"/>
-	<classpathentry kind="lib" path="lib-nlp/opennlp-tools-1.8.0.jar"/>
-	<classpathentry kind="lib" path="lib-nlp/opennlp-uima-1.8.0.jar"/>
-	<classpathentry kind="lib" path="lib-nlp/osgi-resource-locator-1.0.1.jar"/>
-	<classpathentry kind="lib" path="lib-nlp/validation-api-1.1.0.Final.jar"/>
 	<classpathentry kind="lib" path="lib-dl4j/annotations-2.0.1.jar"/>
 	<classpathentry kind="lib" path="lib-dl4j/aopalliance-repackaged-2.4.0-b09.jar"/>
 	<classpathentry kind="lib" path="lib-dl4j/arbiter-core-0.6.0.jar"/>
@@ -172,7 +135,7 @@
 	<classpathentry kind="lib" path="lib-dl4j/metrics-logback-3.1.0.jar"/>
 	<classpathentry kind="lib" path="lib-dl4j/metrics-servlets-3.1.0.jar"/>
 	<classpathentry kind="lib" path="lib-dl4j/mimepull-1.9.3.jar"/>
-	<classpathentry kind="lib" path="lib-dl4j/nd4j-api-0.6.0.jar"/>
+	<classpathentry kind="lib" path="lib-dl4j/nd4j-api-0.6.0.jar" sourcepath="C:/Users/andre/.m2/repository/org/nd4j/nd4j-api/0.6.0/nd4j-api-0.6.0-sources.jar"/>
 	<classpathentry kind="lib" path="lib-dl4j/nd4j-buffer-0.6.0.jar"/>
 	<classpathentry kind="lib" path="lib-dl4j/nd4j-common-0.6.0.jar"/>
 	<classpathentry kind="lib" path="lib-dl4j/nd4j-context-0.6.0.jar"/>
@@ -196,5 +159,21 @@
 	<classpathentry kind="lib" path="lib-dl4j/snakeyaml-1.12.jar"/>
 	<classpathentry kind="lib" path="lib-dl4j/validation-api-1.1.0.Final.jar"/>
 	<classpathentry kind="lib" path="lib-dl4j/xz-1.5.jar"/>
+	<classpathentry kind="lib" path="lib-nlp/grizzly-framework-2.3.28.jar"/>
+	<classpathentry kind="lib" path="lib-nlp/grizzly-http-2.3.28.jar"/>
+	<classpathentry kind="lib" path="lib-nlp/grizzly-http-server-2.3.28.jar"/>
+	<classpathentry kind="lib" path="lib-nlp/hppc-0.7.1.jar"/>
+	<classpathentry kind="lib" path="lib-nlp/jcommander-1.48.jar"/>
+	<classpathentry kind="lib" path="lib-nlp/jersey-container-grizzly2-http-2.25.jar"/>
+	<classpathentry kind="lib" path="lib-nlp/jersey-entity-filtering-2.25.jar"/>
+	<classpathentry kind="lib" path="lib-nlp/jersey-media-json-jackson-2.25.jar"/>
+	<classpathentry kind="lib" path="lib-nlp/morfologik-fsa-2.1.3.jar"/>
+	<classpathentry kind="lib" path="lib-nlp/morfologik-fsa-builders-2.1.3.jar"/>
+	<classpathentry kind="lib" path="lib-nlp/morfologik-stemming-2.1.3.jar"/>
+	<classpathentry kind="lib" path="lib-nlp/morfologik-tools-2.1.3.jar"/>
+	<classpathentry kind="lib" path="lib-nlp/opennlp-brat-annotator-1.8.0.jar"/>
+	<classpathentry kind="lib" path="lib-nlp/opennlp-morfologik-addon-1.8.0.jar"/>
+	<classpathentry kind="lib" path="lib-nlp/opennlp-tools-1.8.0.jar"/>
+	<classpathentry kind="lib" path="lib-nlp/opennlp-uima-1.8.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
