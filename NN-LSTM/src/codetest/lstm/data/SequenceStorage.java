@@ -14,7 +14,6 @@ import org.nd4j.linalg.factory.Nd4j;
 
 import codetest.lstm.text.FileTransformer;
 import codetest.lstm.text.FileTransformerCharacter;
-import codetest.lstm.text.FileTransformerWord;
 
 @SuppressWarnings("serial")
 public class SequenceStorage implements DataSetIterator 
@@ -22,21 +21,12 @@ public class SequenceStorage implements DataSetIterator
 	//---- Transformer is responsible for transforming the input data
 	//---- in a text format into data, which can be understood by the NN
 	private FileTransformer transformer = null;
-	
+
 	//---- Input sequence
 	private int[] sequence = null; 
 
-	//---- The maximum possible value of the input sequence, sequence[i] belongs to
-	//---- the range between [0, to sequenceMaxValue]
-	private int sequenceMaxValue = 0;
-
-	//---- If sequenceMaxValue is too big (number of distinct classes is big)
-	//---- we use different way of mapping integer values into feature vectors.
-	//---- Instead of generating a feature vector, where element on i-th position
-	//---- represents the class, we generate DEFAULT_SEQUENCEMAXVALUE dimensional vector
-	//---- with some code consisted of 1-s.
-	private int dimIN = 0;
-	private int dimOUT = 0;
+	//---- NUmbe or classes
+	private int dim = 0;
 
 
 	//---- These are variables related to generation of a DataSet container for trainining 
@@ -53,19 +43,16 @@ public class SequenceStorage implements DataSetIterator
 		sequence = new int[length];	
 	}
 
-	public void setSequenceMax (int value, int dimIN, int dimOUT)
+	public void setSequenceMax (int dim)
 	{
-		sequenceMaxValue = value;
-
-		this.dimIN = dimIN;
-		this.dimOUT = dimOUT;
+		this.dim = dim;
 	}
 
 	public void loadSequence (String filePath, int setMinibatchSize, int setTrainSequenceLength)
 	{
-		transformer = new FileTransformerWord();
+		transformer = new FileTransformerCharacter();
 		transformer.transform(filePath, this);
-		
+
 		this.setMinibatchSize = setMinibatchSize;
 		this.setTrainSequenceLength = setTrainSequenceLength;
 
@@ -121,22 +108,17 @@ public class SequenceStorage implements DataSetIterator
 
 	public int getSequenceMaxValue ()
 	{
-		return sequenceMaxValue;
+		return dim;
 	}
 
-	public int getDimIN ()
+	public int getDim ()
 	{
-		return dimIN;
-	}
-
-	public int getDimOUT ()
-	{
-		return dimOUT;
+		return dim;
 	}
 
 	public int getRandomSequenceValue ()
 	{
-		int value = (int) (Math.random() * sequenceMaxValue);
+		int value = (int) (Math.random() * dim);
 
 		return value;
 	}
@@ -172,43 +154,34 @@ public class SequenceStorage implements DataSetIterator
 	@Override
 	public DataSet next(int num) 
 	{
-		if (setPointers.size() == 0) { throw new NoSuchElementException(); }
+		if(setPointers.size() == 0 ) throw new NoSuchElementException();
 
 		int currMinibatchSize = Math.min(num, setPointers.size());
-
-		// Allocate space:
-		// Note the order here:
+		//Allocate space:
+		//Note the order here:
 		// dimension 0 = number of examples in minibatch
 		// dimension 1 = size of each vector (i.e., number of characters)
 		// dimension 2 = length of each time series/example
-		// Why 'f' order here? See http://deeplearning4j.org/usingrnns.html#data
-		// section "Alternative: Implementing a custom DataSetIterator"
-		INDArray input = Nd4j.create(new int[] { currMinibatchSize, dimIN, setTrainSequenceLength}, 'f');
-		INDArray labels = Nd4j.create(new int[] { currMinibatchSize, dimOUT, setTrainSequenceLength }, 'f');
+		//Why 'f' order here? See http://deeplearning4j.org/usingrnns.html#data section "Alternative: Implementing a custom DataSetIterator"
+		INDArray input = Nd4j.create(new int[]{currMinibatchSize,dim, setTrainSequenceLength}, 'f');
+		INDArray labels = Nd4j.create(new int[]{currMinibatchSize,dim, setTrainSequenceLength}, 'f');
 
-		for (int i = 0; i < currMinibatchSize; i++) 
+		for( int i=0; i<currMinibatchSize; i++ )
 		{
 			int startIdx = setPointers.removeFirst();
 			int endIdx = startIdx + setTrainSequenceLength;
-			
-			int c = 0;
-			for (int j = startIdx + 1; j < endIdx; j++, c++) 
-			{
-				//---- What is the ID in the main sequence for the current element and next
-				int sequenceElementNext = sequence[j]; 
-				int sequecneElementCurrent = sequence[startIdx]; 
-				
-				//---- What is the encoded representation
-				double[] seqEncodedIN = transformer.endocde(sequecneElementCurrent);
-				double[] seqEncodedOUT = transformer.endocde(sequenceElementNext);
-				
-				//---- Store the encoded representation in the dataset
-				for (int ep = 0; ep < seqEncodedIN.length; ep++) { input.putScalar(new int[] { i, ep, c }, seqEncodedIN[ep]); }
-				for (int ep = 0; ep < seqEncodedIN.length; ep++) { 	labels.putScalar(new int[] { i, ep, c }, seqEncodedOUT[ep]); }
-			
-				sequecneElementCurrent = sequenceElementNext;
+			int currCharIdx = sequence[startIdx];	//Current input
+			int c=0;
+			for( int j=startIdx+1; j<endIdx; j++, c++ ){
+				int nextCharIdx = sequence[j];		//Next character to predict
+				input.putScalar(new int[]{i,currCharIdx,c}, 1.0);
+				labels.putScalar(new int[]{i,nextCharIdx,c}, 1.0);
+				currCharIdx = nextCharIdx;
 			}
 		}
+
+
+
 
 		return new DataSet(input, labels);
 	}
@@ -222,14 +195,14 @@ public class SequenceStorage implements DataSetIterator
 	@Override
 	public int inputColumns() 
 	{
-		return dimIN;
+		return dim;
 	}
 
 	@Override
 	public int totalOutcomes() 
 	{
 
-		return dimOUT;
+		return dim;
 	}
 
 	@Override
@@ -294,35 +267,24 @@ public class SequenceStorage implements DataSetIterator
 	}
 
 	//------------------------------------------------------------
-	
-	public int decode (double[] outputNN)
-	{
-		return transformer.decode(outputNN);
-	}
 
-	public double[] encode (int value)
-	{
-		return transformer.endocde(value);
-	}
-	
+
 	public String transformIndexSequence (int[] sequence)
 	{
 		return transformer.transformIndexSequence(sequence);
 	}
-	
+
 	//------------------------------------------------------------
 
-	
+
 	//------------------------------------------------------------
-	
+
 	public void debugPrint ()
 	{
 		System.out.println("-------------------------------------");
 		System.out.println("Sequence size: " + sequence.length);
-		System.out.println("Sequence max value: " + sequenceMaxValue);
 
-		System.out.println("Sequence dim in: " + dimIN);
-		System.out.println("Sequence dim out: " + dimOUT);
+		System.out.println("Sequence dim: " + dim);
 
 		System.out.println("Pointers list size: " + setPointers.size());
 		System.out.println("Minibatch: " + setMinibatchSize);

@@ -8,7 +8,4 @@ public interface FileTransformer
 	
 	public String transformIndexSequence (int[] seq);
 	
-	public int decode (double[] outputNN);
-	
-	public double[] endocde (int value);
 }

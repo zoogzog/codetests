@@ -12,15 +12,14 @@ import codetest.lstm.gui.CallbackIteration;
 import codetest.lstm.nn.NeuralNetworkLSTM;
 import codetest.lstm.text.FileTransformer;
 import codetest.lstm.text.FileTransformerCharacter;
-import codetest.lstm.text.FileTransformerWord;
 
 public class Monkey 
 {	
-	
+
 	//---- Internal storage, which holds a sequence of integer. Used 
 	//---- to generate data sets for training the NN
 	private SequenceStorage storage  = null;
-	
+
 	//---- The NN, LSTM, contains NN structure and the NN class
 	private NeuralNetworkLSTM netC = null;
 
@@ -37,14 +36,14 @@ public class Monkey
 	int setMinibatchSize = 0;
 	int setSequenceLength = 0;
 	int setEpochs = 0;
-	
+
 	//----------------------------------------------------------------------------
 
 	public Monkey ()
 	{
 		storage  = new SequenceStorage();
 	}
-	
+
 	//----------------------------------------------------------------------------
 
 	public void loadData (String filePath, int miniBatchSize, int sequenceLength)
@@ -52,14 +51,14 @@ public class Monkey
 		try
 		{
 			storage.loadSequence(filePath, miniBatchSize, sequenceLength);
-			
-			dimIN = storage.getDimIN();
-			dimOUT = storage.getDimOUT();
-			
+
+			dimIN = storage.getDim();
+			dimOUT = storage.getDim();
+
 			isDataLoaded = true;
 
 			netC = new NeuralNetworkLSTM(dimIN, dimOUT);
-			
+
 			setMinibatchSize = miniBatchSize;
 			setSequenceLength = sequenceLength;
 		}
@@ -131,65 +130,62 @@ public class Monkey
 	private String generateOutput (int[] sequencePrime, MultiLayerNetwork net, int sequenceOutputLength)
 	{
 		int [] sequenceOutput = new int[sequenceOutputLength];
-		
+
 		//---- Prime sequence with a random value
 		if (sequencePrime == null) { sequencePrime = storage.getRandomSequence(1); }
-		
-		INDArray ndSequencePrime = Nd4j.zeros(1, storage.getDimIN(), sequencePrime.length);
-		INDArray ndSequenceOutput = net.rnnTimeStep(ndSequencePrime);
-		INDArray ndSequenceInput = Nd4j.zeros(1,storage.inputColumns());
-		
-		System.out.println("Generating response for the following prime sequence");
-		System.out.println(storage.transformIndexSequence(sequencePrime));
-		
-		for(int i=0; i<sequencePrime.length; i++ )	
-		{
-			//---- Encode the current element of the sequence
-			double[] encodeSequencePrime = storage.encode(sequencePrime[i]);
-		
-			//---- Store the encoded element
-			for (int ep = 0; ep < encodeSequencePrime.length; ep++) 
-			{
-				ndSequencePrime.putScalar(new int[]{0,ep,i}, encodeSequencePrime[ep]);
-			}
-		}
-		
+
+
+		//Create input for initialization
+		INDArray initializationInput = Nd4j.zeros(1, storage.getDim(), sequencePrime.length);
+
+		for( int i=0; i < sequencePrime.length; i++ ) {	initializationInput.putScalar(new int[]{0,sequencePrime[i],i}, 1.0f); }
+
+		//Sample from network (and feed samples back into input) one character at a time (for all samples)
+		//Sampling is done in parallel here
 		net.rnnClearPreviousState();
-		
-		
-	
-		ndSequenceOutput = ndSequenceOutput.tensorAlongDimension(ndSequenceOutput.size(2)-1,1,0);	//Gets the last time step output
+		INDArray output = net.rnnTimeStep(initializationInput);
+		output = output.tensorAlongDimension(output.size(2)-1,1,0);	//Gets the last time step output
 
-		for( int i=0; i<sequenceOutputLength; i++ )
+		for( int i=0; i < sequenceOutputLength; i++ )
 		{
-			//---- Select input
-			ndSequenceInput = Nd4j.zeros(1,storage.inputColumns());
-			
-			double[] outputNN = new double[storage.totalOutcomes()];
-			for( int j=0; j<outputNN.length; j++ ) outputNN[j] = ndSequenceOutput.getDouble(0,j);
-			
-			int sampledCharacterIdx = storage.decode(outputNN);
+			//Set up next input (single time step) by sampling from previous output
+			INDArray nextInput = Nd4j.zeros(0, storage.getDim());
 
-			double[] encodeSequence = storage.encode(sampledCharacterIdx);
-			
-			
-				for (int ep = 0; ep < encodeSequence.length; ep++) 
-				{ndSequenceInput.putScalar(new int[]{0,ep}, encodeSequence[ep]);}
-			
+			//Output is a probability distribution. Sample from this for each example we want to generate, and add it to the new input
 
-			sequenceOutput[i] = sampledCharacterIdx;
+			double[] outputProbDistribution = new double[storage.getDim()];
+			for( int j=0; j<outputProbDistribution.length; j++ ) outputProbDistribution[j] = output.getDouble(0,j);
+			int sampledCharacterIdx = sampleFromDistribution(outputProbDistribution);
 
-			//---- Select output
-			ndSequenceOutput = net.rnnTimeStep(ndSequenceInput);	//Do one time step of forward pass
-		};
+			nextInput.putScalar(new int[]{0,sampledCharacterIdx}, 1.0f);		//Prepare next time step input
 
+			output = net.rnnTimeStep(nextInput);	//Do one time step of forward pass
+		}
 
 		return storage.transformIndexSequence(sequenceOutput);
 	}
 
 
+	public static int sampleFromDistribution( double[] distribution){
+	    double d = 0.0;
+	    
+	    
+	    Random rng = new Random();
+	    double sum = 0.0;
+	    for( int t=0; t<10; t++ ) {
+            d = rng.nextDouble();
+            sum = 0.0;
+            for( int i=0; i<distribution.length; i++ ){
+                sum += distribution[i];
+                if( d <= sum ) return i;
+            }
+            //If we haven't found the right index yet, maybe the sum is slightly
+            //lower than 1 due to rounding error, so try again.
+        }
+		//Should be extremely unlikely to happen if distribution is a valid probability distribution
+		throw new IllegalArgumentException("Distribution is invalid? d="+d+", sum="+sum);
+	}
 
 
-	
 
 }

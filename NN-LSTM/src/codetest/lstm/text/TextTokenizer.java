@@ -23,7 +23,6 @@ public class TextTokenizer
 	private POSModel posModel = null;
 	private POSTaggerME posTagger = null;
 	
-
 	public Map <String, String> descriptorPOS = new HashMap <String, String>();
 
 	public Map<String, Integer> dictionaryMap = new HashMap <String, Integer>();

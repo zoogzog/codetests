@@ -27,27 +27,6 @@ public class NeuralNetworkLSTM
 	{
 		try
 		{
-	/*	nnConfiguration = new NeuralNetConfiguration.Builder()
-				.optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT).iterations(1)
-				.learningRate(0.1)
-				.rmsDecay(0.95)
-				.seed(12345)
-				.regularization(true)
-				.l2(0.001)
-				.weightInit(WeightInit.XAVIER)
-				.updater(Updater.RMSPROP)
-				.list()
-				.layer(0, new GravesLSTM.Builder().nIn(dimIn).nOut(lstmLayerSize)
-						.activation("tanh").build())
-				.layer(1, new GravesLSTM.Builder().nIn(lstmLayerSize).nOut(lstmLayerSize)
-						.activation("tanh").build())
-				.layer(2, new RnnOutputLayer.Builder(LossFunction.MCXENT).activation("softmax")        //MCXENT + softmax for classification
-						.nIn(lstmLayerSize).nOut(dimOut).build())
-				.backpropType(BackpropType.TruncatedBPTT).tBPTTForwardLength(tbpttLength).tBPTTBackwardLength(tbpttLength)
-				.pretrain(false).backprop(true)
-				.build();
-	*/
-
 			nnConfiguration = new NeuralNetConfiguration.Builder()
 					.optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT).iterations(1)
 					.learningRate(0.1)
@@ -62,15 +41,16 @@ public class NeuralNetworkLSTM
 							.activation("tanh").build())
 					.layer(1, new GravesLSTM.Builder().nIn(lstmLayerSize).nOut(lstmLayerSize)
 							.activation("tanh").build())
-					.layer(2, new RnnOutputLayer.Builder(LossFunction.MSE).activation("sigmoid")        //MCXENT + softmax for classification
+					.layer(2, new RnnOutputLayer.Builder(LossFunction.MCXENT).activation("softmax")        //MCXENT + softmax for classification
 							.nIn(lstmLayerSize).nOut(dimOut).build())
 					.backpropType(BackpropType.TruncatedBPTT).tBPTTForwardLength(tbpttLength).tBPTTBackwardLength(tbpttLength)
 					.pretrain(false).backprop(true)
 					.build();
-			
-		nnNetwork = new MultiLayerNetwork(nnConfiguration);
-		nnNetwork.init();
-		nnNetwork.setListeners(new ScoreIterationListener(1));
+
+
+			nnNetwork = new MultiLayerNetwork(nnConfiguration);
+			nnNetwork.init();
+			nnNetwork.setListeners(new ScoreIterationListener(1));
 		}
 		catch (Exception e) { e.printStackTrace(); }
 	}
@@ -83,18 +63,18 @@ public class NeuralNetworkLSTM
 	public void save (String path)
 	{
 		if (nnNetwork == null) { return; }
-		
+
 		try
 		{
 			System.out.println("Save NN to file: " + path);
-			
+
 			File locationToSave = new File(path);
 			boolean saveUpdater = true;                                            
 			ModelSerializer.writeModel(nnNetwork, locationToSave, saveUpdater);
 		}
 		catch (Exception e) { e.printStackTrace();} 
 	}
-	
+
 	public void load (String path)
 	{
 		try
