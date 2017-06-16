@@ -6,11 +6,13 @@ import java.awt.GridBagLayout;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 import org.jfree.layout.LCBLayout;
+import org.w3c.dom.ls.LSLoadEvent;
 
 import com.sun.java.accessibility.util.java.awt.ButtonTranslator;
 
@@ -137,12 +139,30 @@ public class FormMainPanel
 		
 		//==================================================================
 		
+		JLabel labelSequenceLength = new JLabel ("Sequence length");
+		labelSequenceLength.setPreferredSize(new Dimension(100, 20));
+		labelSequenceLength.setSize(new Dimension(100, 20));
+		layoutConstraits.gridx = 0;
+		layoutConstraits.gridy = 3;
+		mainPanel.add(labelSequenceLength, layoutConstraits);
+		
+		JLabel labelIterationCurrent = new JLabel ("Current step");
+		labelIterationCurrent.setPreferredSize(new Dimension(100, 20));
+		labelIterationCurrent.setSize(new Dimension(100, 20));
+		layoutConstraits.gridx = 1;
+		layoutConstraits.gridy = 3;
+		mainPanel.add(labelIterationCurrent, layoutConstraits);
+		
+	//	JLabel label
+		
+		//==================================================================
+		
 		textfieldTotalSize = new JTextField();
 		textfieldTotalSize.setPreferredSize(new Dimension(100, 20));
 		textfieldTotalSize.setSize(new Dimension(100, 20));
 		textfieldTotalSize.setEditable(false);
 		layoutConstraits.gridx = 0;
-		layoutConstraits.gridy = 3;
+		layoutConstraits.gridy = 4;
 		mainPanel.add(textfieldTotalSize, layoutConstraits);
 	
 		textfieldIterationStep = new JTextField();
@@ -150,7 +170,7 @@ public class FormMainPanel
 		textfieldIterationStep.setSize(new Dimension(100, 20));
 		textfieldIterationStep.setEditable(false);
 		layoutConstraits.gridx = 1;
-		layoutConstraits.gridy = 3;
+		layoutConstraits.gridy = 4;
 		mainPanel.add(textfieldIterationStep, layoutConstraits);
 		
 		textfieldTotalProgress = new JTextField();
@@ -158,7 +178,7 @@ public class FormMainPanel
 		textfieldTotalProgress.setSize(new Dimension(100, 20));
 		textfieldTotalProgress.setEditable(false);
 		layoutConstraits.gridx = 2;
-		layoutConstraits.gridy = 3;
+		layoutConstraits.gridy = 4;
 		layoutConstraits.gridwidth = 1;
 		mainPanel.add(textfieldTotalProgress, layoutConstraits);
 		
@@ -169,7 +189,7 @@ public class FormMainPanel
 		textareaGeneratedText.setSize(new Dimension(300, 200));
 		textareaGeneratedText.setEditable(false);
 		layoutConstraits.gridx = 0;
-		layoutConstraits.gridy = 4;
+		layoutConstraits.gridy = 5;
 		layoutConstraits.gridwidth = 3;
 		mainPanel.add(textareaGeneratedText, layoutConstraits);
 		
@@ -182,7 +202,7 @@ public class FormMainPanel
 		buttonGenerateSample.setActionCommand(FormMainHandler.CMD_GENERATE);
 		buttonGenerateSample.addActionListener(handler);
 		layoutConstraits.gridx = 2;
-		layoutConstraits.gridy = 5;
+		layoutConstraits.gridy = 6;
 		layoutConstraits.gridwidth = 1;
 		mainPanel.add(buttonGenerateSample, layoutConstraits);
 		

@@ -22,8 +22,10 @@ public class FormMainHandler implements ActionListener, CallbackIteration
 	private FormMain fmlnk = null;
 	private Monkey monkey = null;
 
-	String filePath = "";
+	private String filePath = "";
 
+	private final int DEFAULT_OUTTEXT_STRLENGTH = 55;
+	
 	//----------------------------------------------------------------------------
 
 	public FormMainHandler ()
@@ -103,23 +105,17 @@ public class FormMainHandler implements ActionListener, CallbackIteration
 
 	private void commandGenerate ()
 	{
-		if (monkey.getIsTrained() && monkey.getIsDataLoaded())
+		if (monkey.getIsTrained())
 		{
+			System.out.println("enter generation");
 			String txt = "";
-			String rsp = monkey.generate(null);
+			String rsp = monkey.generate(null, 300);
 			
-			rsp = rsp.replace('\n', ' ');
-			String[] data = rsp.split(" ");
+			rsp = rsp.replace("    ", "");
+			rsp = rsp.replace("  ", " ");
+			rsp = rsp.replace("\n ", "\n");
 			
-			for (int k = 0; k < data.length; k++)
-			{
-				txt += data[k];
-			
-				if (k % 10 == 0) { txt += "\n"; }
-			}
-			
-			fmlnk.getComponentPanel().textareaGeneratedText.setText(txt);
-			
+			fmlnk.getComponentPanel().textareaGeneratedText.setText(rsp); 
 		}
 	}
 
@@ -132,13 +128,11 @@ public class FormMainHandler implements ActionListener, CallbackIteration
 	}
 	
 	private void commmandLoadNN ()
-	{
-		if (filePath == "") { return; }
+	{		
+		//---- FIXME do loading in background here
+		monkey.loadNN("nnfile.zip");
 		
 		fmlnk.getComponentPanel().buttonGenerateSample.setEnabled(true);
-		
-		monkey.loadData(filePath, Settings.DEF_NNMINIBATCHSIZE, Settings.DEF_NNSEQUENCELENGTH);
-		monkey.loadNN("nnfile.zip");
 	}
 	
 	//----------------------------------------------------------------------------

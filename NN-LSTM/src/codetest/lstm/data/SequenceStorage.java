@@ -12,16 +12,12 @@ import org.nd4j.linalg.dataset.api.DataSetPreProcessor;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
 
-import codetest.lstm.text.FileTransformer;
-import codetest.lstm.text.FileTransformerCharacter;
+import codetest.lstm.text.TextTransformer;
+import codetest.lstm.text.TextTransformerCharacter;
 
 @SuppressWarnings("serial")
 public class SequenceStorage implements DataSetIterator 
 {
-	//---- Transformer is responsible for transforming the input data
-	//---- in a text format into data, which can be understood by the NN
-	private FileTransformer transformer = null;
-
 	//---- Input sequence
 	private int[] sequence = null; 
 
@@ -43,15 +39,13 @@ public class SequenceStorage implements DataSetIterator
 		sequence = new int[length];	
 	}
 
-	public void setSequenceMax (int dim)
+	public void setSequenceDim (int dim)
 	{
 		this.dim = dim;
 	}
 
 	public void loadSequence (String filePath, int setMinibatchSize, int setTrainSequenceLength)
 	{
-		transformer = new FileTransformerCharacter();
-		transformer.transform(filePath, this);
 
 		this.setMinibatchSize = setMinibatchSize;
 		this.setTrainSequenceLength = setTrainSequenceLength;
@@ -265,17 +259,6 @@ public class SequenceStorage implements DataSetIterator
 	{
 		throw new UnsupportedOperationException();
 	}
-
-	//------------------------------------------------------------
-
-
-	public String transformIndexSequence (int[] sequence)
-	{
-		return transformer.transformIndexSequence(sequence);
-	}
-
-	//------------------------------------------------------------
-
 
 	//------------------------------------------------------------
 
