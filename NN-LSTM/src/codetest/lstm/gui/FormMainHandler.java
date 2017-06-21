@@ -123,16 +123,33 @@ public class FormMainHandler implements ActionListener, CallbackIteration
 	{
 		if (monkey.getIsTrained())
 		{
-			monkey.saveNN("nnfile.zip");
+			JFileChooser fileChooserDriver = new JFileChooser();
+
+			int isFileSelected =  fileChooserDriver.showOpenDialog(fileChooserDriver);
+
+			if (isFileSelected == JFileChooser.APPROVE_OPTION)
+			{
+				String path = fileChooserDriver.getSelectedFile().getPath();
+				monkey.saveNN(path + ".zip");
+			}
 		}
 	}
 	
 	private void commmandLoadNN ()
 	{		
-		//---- FIXME do loading in background here
-		monkey.loadNN("nnfile.zip");
-		
-		fmlnk.getComponentPanel().buttonGenerateSample.setEnabled(true);
+		JFileChooser fileChooserDriver = new JFileChooser();
+
+		int isFileSelected =  fileChooserDriver.showOpenDialog(fileChooserDriver);
+
+		if (isFileSelected == JFileChooser.APPROVE_OPTION)
+		{
+			String path = fileChooserDriver.getSelectedFile().getPath();
+			
+			//---- FIXME do loading in background here
+			monkey.loadNN(path);
+			
+			fmlnk.getComponentPanel().buttonGenerateSample.setEnabled(true);
+		}
 	}
 	
 	//----------------------------------------------------------------------------

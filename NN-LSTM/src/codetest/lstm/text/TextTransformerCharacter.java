@@ -153,6 +153,7 @@ public class TextTransformerCharacter implements TextTransformer
 		for(char c='A'; c<='Z'; c++) validChars.add(c);
 		for(char c='0'; c<='9'; c++) validChars.add(c);
 		char[] temp = {'!', '&', '(', ')', '?', '-', '\'', '"', ',', '.', ':', ';', ' ', '\n', '\t'};
+		
 		for( char c : temp ) validChars.add(c);
 		char[] out = new char[validChars.size()];
 		int i=0;
