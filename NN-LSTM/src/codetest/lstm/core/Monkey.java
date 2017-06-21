@@ -48,6 +48,7 @@ public class Monkey
 
 	public static final int TRANSFORMER_CHAR = 0;
 	public static final int TRANSFORMER_POS = 1;
+	public static final int TRANSFORMER_SEMANTIC = 2;
 	
 	private int TRANSFORMER_TYPE = TRANSFORMER_CHAR;
 	

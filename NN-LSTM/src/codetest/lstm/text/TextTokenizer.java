@@ -250,6 +250,7 @@ public class TextTokenizer
 			for (int i = 0; i < negationListShort.length; i++)
 			{
 				strX = strX.replaceAll(negationListShort[i], negationListLong[i]);
+				strX = strX.replaceAll("--", " ");
 			}
 		}
 
@@ -309,6 +310,8 @@ public class TextTokenizer
 	}
 	
 	
+	//---------------------------------------------------------------------------------------
+		
 	
 	//---------------------------------------------------------------------------------------
 
