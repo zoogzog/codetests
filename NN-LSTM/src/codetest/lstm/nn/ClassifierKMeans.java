@@ -18,17 +18,23 @@ public class ClassifierKMeans
 
 	boolean isTrained = false;
 
-	private final static  String DISTANCE_FUNCTION = "cosinesimilarity";
+	private final static  String DISTANCE_FUNCTION = "euclidean";
 
 	public void run (int classCount, int iterationMax, List<INDArray> vectorSet)
 	{
+
+		
 		List<Point> pointsLst = Point.toPoints(vectorSet);
+		
+		
+		System.out.println("PList: " + pointsLst.size());
+		
 
 		KMeansClustering kmc = KMeansClustering.setup(classCount, iterationMax, DISTANCE_FUNCTION);
 
 		cs = kmc.applyTo(pointsLst);
 
-		pointsLst = null;
+
 
 		isTrained = true;
 		
@@ -46,6 +52,16 @@ public class ClassifierKMeans
 		return  cl.indexOf(pc.getCluster());
 
 
+	}
+	
+	public int getClass (INDArray vector)
+	{
+		if (!isTrained) { return -1; }
+		
+		Point newpoint = new Point("myid", "mylabel", vector);
+		PointClassification pc = cs.classifyPoint(newpoint);
+		
+		return  cl.indexOf(pc.getCluster());
 	}
 
 

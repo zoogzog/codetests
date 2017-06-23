@@ -18,9 +18,9 @@ public class SemanticClass
 		return wordlist.size();
 	}
 
-	public void addItem (int label)
+	public void addItem (int wordID)
 	{
-		wordlist.addElement(label);
+		wordlist.addElement(wordID);
 	}
 
 	public int getItem (int index)
@@ -31,5 +31,17 @@ public class SemanticClass
 		}
 
 		return -1;
+	}
+	
+	public int[] getItemList ()
+	{
+		int[] output = new int[wordlist.size()];
+		
+		for (int i = 0; i < wordlist.size(); i++)
+		{
+			output[i] = wordlist.get(i);
+		}
+		
+		return output;
 	}
 }

@@ -1,13 +1,20 @@
 package codetest.lstm.text;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileInputStream;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
+import org.deeplearning4j.text.sentenceiterator.BasicLineIterator;
+import org.deeplearning4j.text.sentenceiterator.SentenceIterator;
+import org.deeplearning4j.text.tokenization.tokenizer.preprocessor.CommonPreprocessor;
+import org.deeplearning4j.text.tokenization.tokenizerfactory.DefaultTokenizerFactory;
+import org.deeplearning4j.text.tokenization.tokenizerfactory.TokenizerFactory;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
 import codetest.lstm.data.SequenceStorage;
@@ -18,102 +25,139 @@ public class TextTransformerSemantic implements TextTransformer
 {
 	private Dictionary dictionary;
 
-	
+
 	public TextTransformerSemantic ()
 	{
 		dictionary = new Dictionary();
+		dictionary.load("dict.txt");
+		dictionary.labelQueryInit(101);
 	}
-	
-	//---- Extracts tokens and fills the dictionary
-	private void transformTokenize (String path, Vector <String> tokenSequence)
-	{
-		try
-		{			
-			TextTokenizer tokenizer = new TextTokenizer(true, true, false);
 
-			BufferedReader bfr = new BufferedReader(new InputStreamReader(
-                    new FileInputStream(path), "UTF8"));
 
-			String line = "";
 
-			while ((line = bfr.readLine()) != null)
-			{
-				String[] tk = tokenizer.generateTokens(line, true);
-				String[] tkpos = tokenizer.generatePos(tk);
-				
-				for (int i = 0; i < tkpos.length; i++)
-				{
-					//---- FIXME sometimes tokenizer generates strange output
-					//---- Cause not know. Possible - encoding, punctuation in words
-					int index = tokenizer.getPosIndex(tkpos[i]);
-					
-					if (index != -1)
-					{
-						tokenSequence.addElement(tk[i]);
-						
-						//---- If word is not in the dictionary
-						if (!dictionary.isWordInDictionary(tk[i]))
-						{
-							dictionary.addItem(tk[i], tokenizer.getPosIndex(tkpos[i]));
-						}
-					}
-				}
-			}
-			
-			bfr.close();
-
-		}
-		catch (Exception e) { e.printStackTrace(); }
-	}
-	
-	//---- This method received sequence of tokens (clean text) outputs list of 
-	//---- INDArrays which are vector representations of tokens
-	//---- FIXME currently i could not find an easy way to directly insert tokens into
-	//---- FIXME dl4j w2v class. Probably some interface implementation is needed 
-	//---- FIXME to handle this. Thus the token list is saved to a temporary file
-	//---- FIXME then it is given to w2v to parse
-	private void transformWordToVector (Vector <String> tokenSequence, List <INDArray> fvlist)
-	{
-		
-	}
-	
-	//---- This method obtains a list of vectorized words, classifies them into K classes
-	//---- Saves all labels of each word (token) to the dictionary
-	private void transformClusterize (List<INDArray> fvlist)
-	{
-		ClassifierKMeans ckm = new ClassifierKMeans();
-		
-	}
-	
 	@Override
 	public void transform(String path, SequenceStorage storage) 
 	{
-		//---- GLOBAL PARAMETER
-		int CLUSTER_COUNT = 100;
+		try
+		{
+		/*	List <INDArray> fvlist = new ArrayList<INDArray>();
+
+
+			NeuralNetworkWTV wtv = new NeuralNetworkWTV();
+			wtv.train(path);
+
+			String[] dict = wtv.getVocabulary();
+
+			for (int i = 0; i < dict.length; i++)
+			{
+				fvlist.add(wtv.getVectorArray(dict[i]));
+			}
+
+			ClassifierKMeans ckm = new ClassifierKMeans();
+			ckm.run(100, 100, fvlist);
+
+			for (int i = 0; i < dict.length; i++)
+			{
+				String word = dict[i];
+				int wordID = i;
+				int wordPos = 0;
+				int wordLabel = ckm.getClass(fvlist.get(i));
+
+				dictionary.addItem(new DictionaryItem(word, wordID, wordPos, wordLabel));
+			}*/
+
+
+			//--- Check dictionary
+			//dictionary.save("dict.txt");
+
+			dictionary.load("dict.txt");
+			
+			dictionary.labelQueryInit(100);
+			
+			System.out.println("DICT SIZE: " + dictionary.getSize());
+			
+			SentenceIterator iter = new BasicLineIterator(path);
+			// Split on white spaces in the line to get words
+			TokenizerFactory t = new DefaultTokenizerFactory();
+			t.setTokenPreProcessor(new CommonPreprocessor());
 		
-		Vector <String> tokenSequence = new Vector<String>();
-		List <INDArray> fvlist = new ArrayList<INDArray>();
-		
-		transformTokenize(path, tokenSequence);
-		
-		System.out.println("Dictionary: " + dictionary.getSize() + " Sequence: " + tokenSequence.size());
-		
-		transformWordToVector (tokenSequence, fvlist);
-		
+			Vector <Integer> ilist = new Vector<Integer>();
+			
+			while (iter.hasNext())
+			{
+				String line = iter.nextSentence();
+				
+				line = line.replace(".", " EOS ");
+				
+				System.out.println(">>: " + line);
+
+				List<String> tknlst = t.create(line).getTokens();
+				
+				for (int k = 0; k < tknlst.size(); k++)
+				{
+					if (tknlst.get(k).equals("eos")) 
+					{ 
+						//System.out.print("[" + tknlst.get(k) + "," + 101 + "];"); 
+						ilist.addElement(100);
+					}
+					else
+					{
+						DictionaryItem item = dictionary.getItem(tknlst.get(k));
+						if (item == null) { System.out.println("WTF: " + tknlst.get(k)); }
+						else 
+						{
+							//System.out.print("[" + tknlst.get(k) + "," + item.wordLabel + "];");
+							ilist.addElement(item.wordLabel);
+						}
+					
+					}
+				}
+				
+			//	System.out.println();
+			//	System.out.println("-------------------------");
+			}
+			
+			storage.allocateMemory(ilist.size());
+			storage.setSequenceDim(101);
+			
+			for (int i = 0; i < ilist.size(); i++)
+			{
+				storage.set(i, ilist.get(i));
+			}
+
+		}
+		catch (Exception e) { e.printStackTrace();}
+
 	}
 
 	@Override
 	public String transformIndexSequence(int[] seq) 
 	{
-		// TODO Auto-generated method stub
-		return null;
+		String output = "";
+		
+		for (int i = 0; i < seq.length; i++)
+		{
+			int label = seq[i];
+			
+			if (label == 100) { output += "."; }
+			else
+			{
+				int[] queryResult = dictionary.labelQueryWordList(label);
+				
+				int r = (int) (Math.random() * queryResult.length);
+				
+				output += dictionary.getItem(queryResult[r]).word + " ";
+			}
+			
+		}
+		return output;
 	}
 
 	@Override
 	public int getDim() 
 	{
 		// TODO Auto-generated method stub
-		return 0;
+		return 101;
 	}
 
 

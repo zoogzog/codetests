@@ -13,6 +13,7 @@ import codetest.lstm.nn.NeuralNetworkLSTM;
 import codetest.lstm.text.TextTransformer;
 import codetest.lstm.text.TextTransformerCharacter;
 import codetest.lstm.text.TextTransformerPos;
+import codetest.lstm.text.TextTransformerSemantic;
 
 public class Monkey 
 {	
@@ -50,7 +51,7 @@ public class Monkey
 	public static final int TRANSFORMER_POS = 1;
 	public static final int TRANSFORMER_SEMANTIC = 2;
 	
-	private int TRANSFORMER_TYPE = TRANSFORMER_CHAR;
+	private int TRANSFORMER_TYPE = TRANSFORMER_SEMANTIC;
 	
 	//----------------------------------------------------------------------------
 	
@@ -70,6 +71,7 @@ public class Monkey
 			{
 			case TRANSFORMER_CHAR: transformer = new TextTransformerCharacter(); break;
 			case TRANSFORMER_POS: transformer = new TextTransformerPos(); break;
+			case TRANSFORMER_SEMANTIC: transformer = new TextTransformerSemantic(); break;
 			default: transformer = new TextTransformerCharacter(); break;
 			}
 			
@@ -146,6 +148,7 @@ public class Monkey
 			{
 			case TRANSFORMER_CHAR: transformer = new TextTransformerCharacter(); break;
 			case TRANSFORMER_POS: transformer = new TextTransformerPos(); break;
+			case TRANSFORMER_SEMANTIC: transformer = new TextTransformerSemantic(); break;
 			default: transformer = new TextTransformerCharacter(); break;
 			}
 		}

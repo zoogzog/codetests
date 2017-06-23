@@ -23,7 +23,7 @@
 	<classpathentry kind="lib" path="lib-dl4j/datavec-data-codec-0.6.0.jar"/>
 	<classpathentry kind="lib" path="lib-dl4j/datavec-data-image-0.6.0.jar"/>
 	<classpathentry kind="lib" path="lib-dl4j/datavec-nd4j-common-0.6.0.jar"/>
-	<classpathentry kind="lib" path="lib-dl4j/deeplearning4j-core-0.6.0.jar"/>
+	<classpathentry kind="lib" path="lib-dl4j/deeplearning4j-core-0.6.0.jar" sourcepath="C:/Users/andre/.m2/repository/org/deeplearning4j/deeplearning4j-core/0.6.0/deeplearning4j-core-0.6.0-sources.jar"/>
 	<classpathentry kind="lib" path="lib-dl4j/deeplearning4j-nlp-0.6.0.jar" sourcepath="C:/Users/andre/.m2/repository/org/deeplearning4j/deeplearning4j-nlp/0.6.0/deeplearning4j-nlp-0.6.0-sources.jar"/>
 	<classpathentry kind="lib" path="lib-dl4j/deeplearning4j-nn-0.6.0.jar"/>
 	<classpathentry kind="lib" path="lib-dl4j/deeplearning4j-ui-0.6.0.jar"/>

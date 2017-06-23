@@ -18,6 +18,8 @@ public class Dictionary
 	
 	private Vector<SemanticClass> dictionaryLabelSearch;
 	
+	boolean isLabelSearchInit = false;
+	
 	public Dictionary ()
 	{
 		dictionary = new Vector <DictionaryItem> ();
@@ -49,6 +51,31 @@ public class Dictionary
 		{
 			dictionary.set(index, item);
 		}
+	}
+	
+	//------------------------------------------------------
+	
+	public void labelQueryInit (int labelcount)
+	{
+		dictionaryLabelSearch = new Vector<SemanticClass> ();
+		
+		for (int i = 0; i < labelcount; i++)
+		{
+			dictionaryLabelSearch.addElement(new SemanticClass());
+		}
+		
+		for (int i = 0; i < dictionary.size(); i++)
+		{
+			int label = dictionary.get(i).wordLabel;
+			int wordID = dictionary.get(i).wordIndex;
+			
+			dictionaryLabelSearch.get(label).addItem(wordID);
+		}
+	}
+	
+	public int[] labelQueryWordList (int label)
+	{
+		return dictionaryLabelSearch.get(label).getItemList();
 	}
 	
 	//------------------------------------------------------
@@ -125,6 +152,9 @@ public class Dictionary
 	 */
 	public void load (String path)
 	{
+		dictionary.clear();
+		dictionaryWordSearch.clear();
+		
 		try
 		{
 			BufferedReader bfr = new BufferedReader(new FileReader(path));
@@ -141,9 +171,13 @@ public class Dictionary
 				int inwordpos = Integer.parseInt(data[2]);
 				int inwordlabel = Integer.parseInt(data[3]);
 				
+				//System.out.println("DICT: " + inword + " " + inwordid + " " + inwordlabel);
+				
 				dictionary.add(new DictionaryItem(inword, inwordid, inwordpos, inwordlabel));
+				dictionaryWordSearch.put(inword, inwordid);
 			}
 			
+		
 			
 			bfr.close();
 		}
