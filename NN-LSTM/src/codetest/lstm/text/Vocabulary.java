@@ -9,47 +9,52 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
-public class Dictionary 
+/**
+ * 
+ * @author Grushnikov Andrey
+ *
+ */
+public class Vocabulary 
 {
 	//---- This dictionary is used for Word Index -> Word relation
-	private Vector <DictionaryItem> dictionary;
+	private Vector <VocabularyItem> vocabulary;
 	
-	private Map <String, Integer> dictionaryWordSearch;
+	private Map <String, Integer> vocabularyWordSearch;
 	
-	private Vector<SemanticClass> dictionaryLabelSearch;
+	private Vector<SemanticClass> vocabularyLabelSearch;
 	
 	boolean isLabelSearchInit = false;
 	
-	public Dictionary ()
+	public Vocabulary ()
 	{
-		dictionary = new Vector <DictionaryItem> ();
-		dictionaryWordSearch = new HashMap <String, Integer>();
+		vocabulary = new Vector <VocabularyItem> ();
+		vocabularyWordSearch = new HashMap <String, Integer>();
 	}
 	
 
 	//------------------------------------------------------
 	
-	public void addItem (DictionaryItem item)
+	public void addItem (VocabularyItem item)
 	{
-		dictionary.addElement(item);
+		vocabulary.addElement(item);
 		
-		int maxIndex = dictionary.size();
+		int maxIndex = vocabulary.size();
 		
-		dictionaryWordSearch.put(item.word, maxIndex);
+		vocabularyWordSearch.put(item.word, maxIndex);
 	}
 	
 	public void addItem (String word, int wordPos)
 	{
-		int id = dictionary.size();
+		int id = vocabulary.size();
 		
-		addItem(new DictionaryItem(word, id, wordPos, 0));
+		addItem(new VocabularyItem(word, id, wordPos, 0));
 	}
 	
-	public void setItem (DictionaryItem item, int index)
+	public void setItem (VocabularyItem item, int index)
 	{
-		if (index >= 0 && index < dictionary.size()) 
+		if (index >= 0 && index < vocabulary.size()) 
 		{
-			dictionary.set(index, item);
+			vocabulary.set(index, item);
 		}
 	}
 	
@@ -57,52 +62,52 @@ public class Dictionary
 	
 	public void labelQueryInit (int labelcount)
 	{
-		dictionaryLabelSearch = new Vector<SemanticClass> ();
+		vocabularyLabelSearch = new Vector<SemanticClass> ();
 		
 		for (int i = 0; i < labelcount; i++)
 		{
-			dictionaryLabelSearch.addElement(new SemanticClass());
+			vocabularyLabelSearch.addElement(new SemanticClass());
 		}
 		
-		for (int i = 0; i < dictionary.size(); i++)
+		for (int i = 0; i < vocabulary.size(); i++)
 		{
-			int label = dictionary.get(i).wordLabel;
-			int wordID = dictionary.get(i).wordIndex;
+			int label = vocabulary.get(i).wordLabel;
+			int wordID = vocabulary.get(i).wordIndex;
 			
-			dictionaryLabelSearch.get(label).addItem(wordID);
+			vocabularyLabelSearch.get(label).addItem(wordID);
 		}
 	}
 	
 	public int[] labelQueryWordList (int label)
 	{
-		return dictionaryLabelSearch.get(label).getItemList();
+		return vocabularyLabelSearch.get(label).getItemList();
 	}
 	
 	//------------------------------------------------------
 	
 	public boolean isWordInDictionary (String word)
 	{
-		if (dictionaryWordSearch.containsKey(word)) { return true; }
+		if (vocabularyWordSearch.containsKey(word)) { return true; }
 		return false;
 	}
 	
 	//------------------------------------------------------
 	
-	public DictionaryItem getItem (int index)
+	public VocabularyItem getItem (int index)
 	{
-		if (index >= 0 && index < dictionary.size())
+		if (index >= 0 && index < vocabulary.size())
 		{
-			return dictionary.get(index);
+			return vocabulary.get(index);
 		}
 		
 		return null;
 	}
 	
-	public DictionaryItem getItem (String word)
+	public VocabularyItem getItem (String word)
 	{
-		if (dictionaryWordSearch.containsKey(word))
+		if (vocabularyWordSearch.containsKey(word))
 		{
-			int index = dictionaryWordSearch.get(word);
+			int index = vocabularyWordSearch.get(word);
 			
 			return getItem(index);
 		}
@@ -112,7 +117,7 @@ public class Dictionary
 	
 	public int getSize()
 	{
-		return dictionary.size();
+		return vocabulary.size();
 	}
 
 	//------------------------------------------------------
@@ -127,12 +132,12 @@ public class Dictionary
 		{
 			BufferedWriter bfw = new BufferedWriter(new FileWriter(path));
 			
-			for (int i = 0; i< dictionary.size(); i++)
+			for (int i = 0; i< vocabulary.size(); i++)
 			{
-				String outword = dictionary.get(i).word;
-				int outwordid = dictionary.get(i).wordIndex;
-				int outwordpos = dictionary.get(i).wordPOS;
-				int outwordlabel = dictionary.get(i).wordLabel;
+				String outword = vocabulary.get(i).word;
+				int outwordid = vocabulary.get(i).wordIndex;
+				int outwordpos = vocabulary.get(i).wordPOS;
+				int outwordlabel = vocabulary.get(i).wordLabel;
 				
 				bfw.write(outword + ";" + outwordid + ";" + outwordpos + ";" + outwordlabel + ";\n");
 			}
@@ -152,8 +157,8 @@ public class Dictionary
 	 */
 	public void load (String path)
 	{
-		dictionary.clear();
-		dictionaryWordSearch.clear();
+		vocabulary.clear();
+		vocabularyWordSearch.clear();
 		
 		try
 		{
@@ -173,8 +178,8 @@ public class Dictionary
 				
 				//System.out.println("DICT: " + inword + " " + inwordid + " " + inwordlabel);
 				
-				dictionary.add(new DictionaryItem(inword, inwordid, inwordpos, inwordlabel));
-				dictionaryWordSearch.put(inword, inwordid);
+				vocabulary.add(new VocabularyItem(inword, inwordid, inwordpos, inwordlabel));
+				vocabularyWordSearch.put(inword, inwordid);
 			}
 			
 		
@@ -186,4 +191,6 @@ public class Dictionary
 			e.printStackTrace();
 		}
 	}
+
+	//------------------------------------------------------
 }

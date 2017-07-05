@@ -2,6 +2,7 @@ package codetest.lstm.text;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -21,134 +22,131 @@ import codetest.lstm.data.SequenceStorage;
 import codetest.lstm.nn.ClassifierKMeans;
 import codetest.lstm.nn.NeuralNetworkWTV;
 
+/**
+ * Vocabulary generation: Read txt -> tokenize -> word2vec -> k-means clustering (semantic clusters) -> vocabulary
+ * Sequence generation: Read txt -> tokenize -> vocabulary, get semantic class -> store semantic class in sequence
+ * @author Grushnikov Andrey
+ */
 public class TextTransformerSemantic implements TextTransformer
 {
-	private Dictionary dictionary;
+	private Vocabulary vocabulary;
 
+	private int KM_CLUSTER_COUNT = 100;
+	private int KM_ITERATION_MAX = 100;
+	private int WTV_DIMENSION = 100;
 
+	private boolean isGenerateVocabulary = true;
+
+	//---- Default vocabulary path
+	private final String VOCABULARY_PATH = "dict.txt";
+	
 	public TextTransformerSemantic ()
 	{
-		dictionary = new Dictionary();
-		dictionary.load("dict.txt");
-		dictionary.labelQueryInit(101);
+		vocabulary = new Vocabulary();
 	}
 
-
-
+	//-----------------------------------------------------------------------------
+	
 	@Override
 	public void transform(String path, SequenceStorage storage) 
 	{
 		try
 		{
-		/*	List <INDArray> fvlist = new ArrayList<INDArray>();
-
-
-			NeuralNetworkWTV wtv = new NeuralNetworkWTV();
-			wtv.train(path);
-
-			String[] dict = wtv.getVocabulary();
-
-			for (int i = 0; i < dict.length; i++)
+			if (isGenerateVocabulary) { vocabularyGenerate(path); }
+			else 
 			{
-				fvlist.add(wtv.getVectorArray(dict[i]));
-			}
-
-			ClassifierKMeans ckm = new ClassifierKMeans();
-			ckm.run(100, 100, fvlist);
-
-			for (int i = 0; i < dict.length; i++)
-			{
-				String word = dict[i];
-				int wordID = i;
-				int wordPos = 0;
-				int wordLabel = ckm.getClass(fvlist.get(i));
-
-				dictionary.addItem(new DictionaryItem(word, wordID, wordPos, wordLabel));
-			}*/
-
-
-			//--- Check dictionary
-			//dictionary.save("dict.txt");
-
-			dictionary.load("dict.txt");
-			
-			dictionary.labelQueryInit(100);
-			
-			System.out.println("DICT SIZE: " + dictionary.getSize());
-			
-			SentenceIterator iter = new BasicLineIterator(path);
-			// Split on white spaces in the line to get words
-			TokenizerFactory t = new DefaultTokenizerFactory();
-			t.setTokenPreProcessor(new CommonPreprocessor());
-		
-			Vector <Integer> ilist = new Vector<Integer>();
-			
-			while (iter.hasNext())
-			{
-				String line = iter.nextSentence();
-				
-				line = line.replace(".", " EOS ");
-				
-				System.out.println(">>: " + line);
-
-				List<String> tknlst = t.create(line).getTokens();
-				
-				for (int k = 0; k < tknlst.size(); k++)
-				{
-					if (tknlst.get(k).equals("eos")) 
-					{ 
-						//System.out.print("[" + tknlst.get(k) + "," + 101 + "];"); 
-						ilist.addElement(100);
-					}
-					else
-					{
-						DictionaryItem item = dictionary.getItem(tknlst.get(k));
-						if (item == null) { System.out.println("WTF: " + tknlst.get(k)); }
-						else 
-						{
-							//System.out.print("[" + tknlst.get(k) + "," + item.wordLabel + "];");
-							ilist.addElement(item.wordLabel);
-						}
-					
-					}
-				}
-				
-			//	System.out.println();
-			//	System.out.println("-------------------------");
+				//---- Check if the vocabulary file specified. If  file exists, load 
+				//---- vocabulary from that file, if not generate vocabulary from the corpus
+				if ((new File(VOCABULARY_PATH).exists())) { vocabularyLoad(path);}
+				else { vocabularyGenerate(path); }
 			}
 			
-			storage.allocateMemory(ilist.size());
-			storage.setSequenceDim(101);
-			
-			for (int i = 0; i < ilist.size(); i++)
-			{
-				storage.set(i, ilist.get(i));
-			}
 
+			//---- Parse file, build sequence
+			Vector <Integer> sequence  = transformText(path);
+
+			//---- Allocate memory and specify max value in the sequence
+			storage.allocateMemory(sequence.size());
+			storage.setSequenceDim(KM_CLUSTER_COUNT + 1);
+			
+			//---- Store sequence in the storage
+			for (int i = 0; i < sequence.size(); i++) { storage.set(i, sequence.get(i)); }
+	
 		}
 		catch (Exception e) { e.printStackTrace();}
 
 	}
 
+	public Vector <Integer> transformText (String path)
+	{
+		try
+		{
+			Vector <Integer> output = new Vector<Integer>();
+			
+			TextTokenizer tck = new TextTokenizer(true, true, false);
+			
+			vocabulary.labelQueryInit(KM_CLUSTER_COUNT);
+			
+			BufferedReader bfr = new BufferedReader(new FileReader(path));
+			
+			String str = "";
+			
+			while ((str = bfr.readLine()) != null)
+			{
+				String[] tcklst = tck.generateTokens(str, true);
+				
+				for (int i = 0; i < tcklst.length; i++)
+				{
+					//--- EOS is not in the vocabulary, handle it separately
+					if (tcklst[i].equals("eos")) 
+					{ 
+						output.addElement(KM_CLUSTER_COUNT);
+					}
+					else
+					{
+						VocabularyItem item = vocabulary.getItem(tcklst[i]);
+						if (item != null) { output.addElement(item.wordLabel); }
+					}
+				}
+			}
+			
+			bfr.close();
+		}
+		catch (Exception e) { e.printStackTrace(); }
+		
+		
+		return null;
+	}
+	
+	
 	@Override
 	public String transformIndexSequence(int[] seq) 
 	{
-		String output = "";
+		//---- Check if the vocabulary is initialized 
+		//---- If not, then try to load it using the default path
+		//---- If can not load, return empty string
+		if (vocabulary == null)
+		{
+			if (new File(VOCABULARY_PATH).exists()) { vocabularyLoad(VOCABULARY_PATH); }
+			else { return ""; }
+		}
 		
+		String output = "";
+
 		for (int i = 0; i < seq.length; i++)
 		{
 			int label = seq[i];
-			
-			if (label == 100) { output += "."; }
+
+			if (label == KM_CLUSTER_COUNT) { output += "."; }
 			else
 			{
-				int[] queryResult = dictionary.labelQueryWordList(label);
-				
+				int[] queryResult = vocabulary.labelQueryWordList(label);
+
 				int r = (int) (Math.random() * queryResult.length);
-				
-				output += dictionary.getItem(queryResult[r]).word + " ";
+
+				output += vocabulary.getItem(queryResult[r]).word + " ";
 			}
-			
+
 		}
 		return output;
 	}
@@ -157,15 +155,61 @@ public class TextTransformerSemantic implements TextTransformer
 	public int getDim() 
 	{
 		// TODO Auto-generated method stub
-		return 101;
+		return KM_CLUSTER_COUNT + 1;
 	}
 
+	//-----------------------------------------------------------------------------
 
-	public static void main (String[] args)
+	//---- Generate vocabulary of words from corpus
+	public void vocabularyGenerate (String path)
 	{
-		String path = "data-text/fiction.txt";
+		TextTokenizer tck = new TextTokenizer(true, true, false);
 
-		TextTransformerSemantic txt = new TextTransformerSemantic();
-		txt.transform(path, null);
+		List <INDArray> fvlist = new ArrayList<INDArray>();
+
+		NeuralNetworkWTV wtv = new NeuralNetworkWTV();
+		wtv.setSettings(WTV_DIMENSION);
+		wtv.train(path, tck);
+
+		String[] dict = wtv.getVocabulary();
+
+		for (int i = 0; i < dict.length; i++)
+		{
+			fvlist.add(wtv.getVectorArray(dict[i]));
+		}
+
+		ClassifierKMeans ckm = new ClassifierKMeans();
+		ckm.run(KM_CLUSTER_COUNT, KM_ITERATION_MAX, fvlist);
+
+		for (int i = 0; i < dict.length; i++)
+		{
+			String word = dict[i];
+			int wordID = i;
+			int wordPos = 0;
+			int wordLabel = ckm.getClass(fvlist.get(i));
+
+			vocabulary.addItem(new VocabularyItem(word, wordID, wordPos, wordLabel));
+		}
 	}
+
+	//-----------------------------------------------------------------------------
+	
+	/**
+	 * Save the generated vocabulary to a specified path
+	 * @param path
+	 */
+	public void vocabularySave (String path)
+	{
+		vocabulary.save(path);
+	}
+	
+	/**
+	 * Load previously generated vocabulary, specified by its path
+	 * @param path
+	 */
+	public void vocabularyLoad (String path)
+	{
+		vocabulary.load(path);
+	}
+	
 }

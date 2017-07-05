@@ -2,14 +2,14 @@ package codetest.lstm.launcher;
 
 import java.awt.Rectangle;
 
-import codetest.lstm.core.Monkey;
+import codetest.lstm.core.CoreTrainer;
 import codetest.lstm.gui.FormMain;
 import codetest.lstm.gui.FormMainHandler;
 
 
 
 /**
- * This class handles all the operations with the main data storages. 
+ * This class handles all the operations with all data/gui components.
  * @author Andrey Grushnikov
  */
 
@@ -21,7 +21,7 @@ public class MainController
 	private FormMain windowMain = null;
 	private FormMainHandler windowMainHandler = null;
 
-	private Monkey monkey = null;
+	private CoreTrainer monkey = null;
 	
 	//----------------------------------------------------------------
 
@@ -44,7 +44,7 @@ public class MainController
 		//---- Init handlers, create window, launch.
 		if (windowMain == null) 
 		{ 
-			monkey = new Monkey();
+			monkey = new CoreTrainer();
 			
 			windowMainHandler = new FormMainHandler();
 

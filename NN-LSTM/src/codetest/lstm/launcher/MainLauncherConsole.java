@@ -1,6 +1,6 @@
 package codetest.lstm.launcher;
 
-import codetest.lstm.core.Monkey;
+import codetest.lstm.core.CoreTrainer;
 
 /**
  * Console version of the app
@@ -14,13 +14,17 @@ public class MainLauncherConsole
 		int sequenceLength = 1000;					
 		int numEpochs = 1;		
 		
+		int transformer = 0;
+		int dictionary = 0;
+		
+		
 		int sequenceLengthOutput = 300;
 		
 		String filePath = "./britney.txt";
 
-		Monkey kingkong = new Monkey();
+		CoreTrainer kingkong = new CoreTrainer();
 		
-		kingkong.loadData(filePath, miniBatchSize, sequenceLength);
+		kingkong.loadData(filePath, miniBatchSize, sequenceLength, transformer, dictionary);
 		kingkong.train(numEpochs, null);
 		
 		for (int i = 0; i < 5; i++)

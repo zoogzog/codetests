@@ -15,58 +15,66 @@ import org.deeplearning4j.text.tokenization.tokenizerfactory.DefaultTokenizerFac
 import org.deeplearning4j.text.tokenization.tokenizerfactory.TokenizerFactory;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
+import codetest.lstm.text.TextTokenizer;
+import codetest.lstm.tokenizer.CustomTokenizerFactory;
+
 public class NeuralNetworkWTV 
 {
 	private Word2Vec vec = null;
-	
+
 	private boolean isTrained = false;
-	
+
+	private int LAYER_SIZE = 100;
+
 	public NeuralNetworkWTV ()
 	{
-		
+
 	}
-	
-	//---- Trains word2vec on a corpus
-	public void train (String path)
+
+	public void setSettings (int layerSize)
+	{
+		LAYER_SIZE = layerSize;
+	}
+
+	//---- Trains word2vec on a corpus, custom tokenizer from stanford NLP 
+	//---- package is used here.
+	public void train (String path, TextTokenizer tck)
 	{
 		try
 		{
 
-		
-		  // Strip white space before and after for each line
-		        SentenceIterator iter = new BasicLineIterator(path);
-		        // Split on white spaces in the line to get words
-		        TokenizerFactory t = new DefaultTokenizerFactory();
-		        t.setTokenPreProcessor(new CommonPreprocessor());
 
-		        vec = new Word2Vec.Builder()
-		                .minWordFrequency(5)
-		                .iterations(1)
-		                .layerSize(100)
-		                .seed(42)
-		                .windowSize(5)
-		                .iterate(iter)
-		                .tokenizerFactory(t)
-		                .build();
+			SentenceIterator iter = new BasicLineIterator(path);
+			TokenizerFactory t = new CustomTokenizerFactory(tck);
 
-		       
-		        vec.fit();
-		        
-		        isTrained = true;
+			vec = new Word2Vec.Builder()
+					.minWordFrequency(5)
+					.iterations(1)
+					.layerSize(LAYER_SIZE)
+					.seed(42)
+					.windowSize(5)
+					.iterate(iter)
+					.tokenizerFactory(t)
+					.build();
+
+
+			vec.fit();
+
+			isTrained = true;
 		}
 		catch (Exception e) 
 		{
 			e.printStackTrace();
 		}
 	}
-	
+
 	//------------------------------------------------------
-	
+
 	public void load (String path)
 	{
 		if (!new File(path).exists()) { return; }
-		
-		
+
+
 		try 
 		{
 			WordVectorSerializer.readWord2Vec(new File(path));
@@ -76,51 +84,51 @@ public class NeuralNetworkWTV
 			e.printStackTrace();
 		}
 	}
-	
+
 	public void save (String path)
 	{
 		if (!isTrained) { return; }
-		
-		 WordVectorSerializer.writeWord2Vec(vec, new File(path));
+
+		WordVectorSerializer.writeWord2Vec(vec, new File(path));
 	}
 
 	//------------------------------------------------------s
-	
+
 	public double[] getVector (String word)
 	{
 		if (!isTrained) { return null; }
-		
+
 		return vec.getWordVector(word);
 	}
-	
+
 	public INDArray getVectorArray (String word)
 	{
 		if (!isTrained) { return null; }
-		
+
 		return vec.getWordVectorMatrix(word);
 	}
-	
+
 	public String[] getWordNearest (String word)
 	{
 		if (!isTrained) { return null; }
-	
+
 		Collection <String> tmp = vec.wordsNearest(word, 10);
-		
-		
+
+
 		return tmp.toArray(new String[tmp.size()]);
 	}
-	
+
 	public String[] getWordNeared (INDArray vector)
 	{
 		if (!isTrained) { return null; }
-		
+
 		Collection <String> tmp = vec.wordsNearest(vector, 10);
-		
+
 		return tmp.toArray(new String[tmp.size()]);
 	}
-	
+
 	//------------------------------------------------------
-	
+
 	/**
 	 * Obtain vocabulary built during running of the w2v training procedure.
 	 * @return
@@ -128,17 +136,17 @@ public class NeuralNetworkWTV
 	public String[] getVocabulary ()
 	{
 		if (!isTrained) { return null; }
-		
+
 		VocabCache <VocabWord> vocab = vec.getVocab();
-		
+
 		String[] output = new String[vocab.numWords()];
-		
+
 		for (int k = 0; k < output.length; k++)
 		{
 			output[k] = vocab.wordAtIndex(k);
 		}
-		
+
 		return output;
-		
+
 	}
 }

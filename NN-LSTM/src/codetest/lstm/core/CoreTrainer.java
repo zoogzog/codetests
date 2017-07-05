@@ -15,70 +15,94 @@ import codetest.lstm.text.TextTransformerCharacter;
 import codetest.lstm.text.TextTransformerPos;
 import codetest.lstm.text.TextTransformerSemantic;
 
-public class Monkey 
+/**
+ * Main class for performing NN training, generating text
+ * @author Grushnikov Andrey
+ */
+public class CoreTrainer 
 {	
-	//---- Internal storage, which holds a sequence of integer. Used 
+	//---- Internal storage, which holds a sequence of integers. It is used 
 	//---- to generate data sets for training the NN. The sequence is 
 	//---- stored as integer numbers, than converted into one-shoe encoding
 	//---- when requested by the neural network training algorithm.
 	private SequenceStorage storage  = null;
 
-	//---- Class which is used to transform initial text into a sequence
-	//---- of vectors
+	//---- Class which is used to transform initial text into sequence of integers
 	private TextTransformer transformer = null;
 
-	//---- The NN, LSTM, contains NN structure and the NN class
+	//---- Class which describes the ANN structure
 	private NeuralNetworkLSTM netC = null;
 
-	//---- If the NN was trained this flag is raised
+	//---- Flag: if ANN was trained equals true, if not then false
 	private boolean isTrained = false;
 
-	//---- If the input data is loaded this flag is raised
+	//---- Flag: if sequence of integers is generated then true, otherwise false
 	private boolean isDataLoaded = false;
 
-	//---- Dimensions of feature vector of NN in and out
-	//---- Here, basically IN = OUT (using LSTM)
+	//---- Parameters for training ANN: size of input and output vectors
 	private int dimIN = 0;
 	private int dimOUT = 0;
 
-	int setMinibatchSize = 0;
-	int setSequenceLength = 0;
-	int setEpochs = 0;
+	//---- Parameters for training ANN
+	private int setMinibatchSize = 0;
+	private int setSequenceLength = 0;
+	private int setEpochs = 0;
 
 	//----------------------------------------------------------------------------
 
+	//---- Generate a sequence of characters
 	public static final int TRANSFORMER_CHAR = 0;
+	
+	//---- Generate a sequence of word's part of speech tags
 	public static final int TRANSFORMER_POS = 1;
+	
+	//---- Generate a sequence of semantic meanings
 	public static final int TRANSFORMER_SEMANTIC = 2;
 	
+	//---- Currently selected transformation type, default - character
 	private int TRANSFORMER_TYPE = TRANSFORMER_SEMANTIC;
 	
 	//----------------------------------------------------------------------------
 	
-	public Monkey ()
+	public CoreTrainer ()
 	{
 		storage  = new SequenceStorage();
 	}
 
 	//----------------------------------------------------------------------------
 
-	public void loadData (String filePath, int miniBatchSize, int sequenceLength)
+	/**
+	 * Parse text, generate sequence of integers which represents time series with the
+	 * selecting transformation algorithm.
+	 * @param filePath
+	 * @param miniBatchSize
+	 * @param sequenceLength
+	 */
+	public void loadData (String filePath, int miniBatchSize, int sequenceLength, int trtype, int dictionary)
 	{
 		try
 		{
+			TRANSFORMER_TYPE = trtype;
+			
 			//---- Choose a transformer
 			switch (TRANSFORMER_TYPE)
 			{
 			case TRANSFORMER_CHAR: transformer = new TextTransformerCharacter(); break;
 			case TRANSFORMER_POS: transformer = new TextTransformerPos(); break;
-			case TRANSFORMER_SEMANTIC: transformer = new TextTransformerSemantic(); break;
+			case TRANSFORMER_SEMANTIC: 
+				transformer = new TextTransformerSemantic(); 
+				
+				break;
 			default: transformer = new TextTransformerCharacter(); break;
 			}
 			
+			//---- Perform transformation from the original text into sequence of integers
 			transformer.transform(filePath, storage);
 
+			//---- Specify parameters for generating training datasets
 			storage.loadSequence(filePath, miniBatchSize, sequenceLength);
 
+			//---- Dimensions of the input and output vectors
 			dimIN = storage.getDim();
 			dimOUT = storage.getDim();
 
@@ -92,6 +116,13 @@ public class Monkey
 		catch (Exception e) { e.printStackTrace();}
 	}
 
+	//----------------------------------------------------------------------------
+	
+	/**
+	 * Train the ANN. The data has to be loaded before calling this function
+	 * @param numEpochs -- number of epochs ANN is trained
+	 * @param callback -- returns progress via callback if it is not null
+	 */
 	public void train (int numEpochs, CallbackIteration callback)
 	{
 		storage.debugPrint();
@@ -131,6 +162,15 @@ public class Monkey
 		isTrained = true;
 	}
 
+	//----------------------------------------------------------------------------
+	
+	/**
+	 * Generates sequence of integers then transforms into text according to selected transformation
+	 * algorithm.
+	 * @param init 
+	 * @param nSampleLength
+	 * @return
+	 */
 	public String generate (String init, int nSampleLength)
 	{
 		int[] sequencePrime = null;
@@ -140,7 +180,7 @@ public class Monkey
 		//---- Check if the neural network was trained or loaded
 		if (!isTrained) { return ""; }
 
-		//---- Initialize text transformer 
+		//---- Select the type of transformer to use
 		if (transformer == null) 
 		{ 
 			//---- Choose a transformer
@@ -203,11 +243,19 @@ public class Monkey
 
 	//----------------------------------------------------------------------------
 
+	/**
+	 * Returns true if the neural network was trained, false if not
+	 * @return
+	 */
 	public boolean getIsTrained ()
 	{
 		return isTrained;
 	}
 
+	/**
+	 * Returns true if the sequence was loaded, false if not
+	 * @return
+	 */
 	public boolean getIsDataLoaded ()
 	{
 		return isDataLoaded;
@@ -215,6 +263,11 @@ public class Monkey
 
 	//----------------------------------------------------------------------------
 
+	/** 
+	 * Sample class from distribution which is the output of the NN
+	 * @param distribution -- output of the NN
+	 * @return
+	 */
 	public static int sampleFromDistribution( double[] distribution)
 	{
 		double d = 0.0;

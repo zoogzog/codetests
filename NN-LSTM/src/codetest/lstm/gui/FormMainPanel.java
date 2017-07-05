@@ -5,9 +5,11 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 
 import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
@@ -36,9 +38,18 @@ public class FormMainPanel
 	public JButton buttonSaveNet;
 	public JButton buttonLoadNet;
 	public JButton buttonGenerateSample;
-
-
+	
 	public JTextArea textareaGeneratedText;
+	
+	public JRadioButton radioButtonTrChar;
+	public JRadioButton radioButtonTrPos;
+	public JRadioButton radioButtonTrSem;
+	public ButtonGroup radioGroupTrType;
+
+	public JRadioButton radioButtonDicGenerate;
+	public JRadioButton radioButtonDicUse;
+	public ButtonGroup radioGroupDicType;
+	
 
 	public JPanel mainPanel;
 
@@ -79,14 +90,90 @@ public class FormMainPanel
 
 		//==================================================================
 
-		componentNetButtons(handler, layoutConstraits, 1);
-		componentNetSettingsLabels(handler, layoutConstraits, 2);
-		componentNetSettings(handler, layoutConstraits, 3);
-		componentStatisticsLabels(handler, layoutConstraits, 4);
-		componentStatisticsInfo(handler, layoutConstraits, 5);
-		componentTextGenerator(handler, layoutConstraits, 6);
+		componentTransformMethod(handler, layoutConstraits, 1);
+		componentDictionaryType(handler, layoutConstraits, 2);
+		componentNetButtons(handler, layoutConstraits, 3);
+		componentNetSettingsLabels(handler, layoutConstraits, 4);
+		componentNetSettings(handler, layoutConstraits, 5);
+		componentStatisticsLabels(handler, layoutConstraits, 6);
+		componentStatisticsInfo(handler, layoutConstraits, 7);
+		componentTextGenerator(handler, layoutConstraits, 8);
 
 
+	}
+	
+	private void componentTransformMethod (FormMainHandler handler, GridBagConstraints layoutConstraits, int row)
+	{
+		radioButtonTrChar = new JRadioButton("Character");
+		radioButtonTrChar.setPreferredSize(new Dimension(100, 20));
+		radioButtonTrChar.setSize(new Dimension(100, 20));
+		radioButtonTrChar.addActionListener(handler);
+		radioButtonTrChar.setActionCommand(FormMainHandler.CMD_RADIOBUTTON);
+		layoutConstraits.gridx = 0;
+		layoutConstraits.gridy = row;
+		layoutConstraits.gridwidth = 1;
+		mainPanel.add(radioButtonTrChar, layoutConstraits);
+		
+		radioButtonTrPos = new JRadioButton("POS");
+		radioButtonTrPos.setPreferredSize(new Dimension(100, 20));
+		radioButtonTrPos.setSize(new Dimension(100, 20));
+		radioButtonTrPos.addActionListener(handler);
+		radioButtonTrPos.setActionCommand(FormMainHandler.CMD_RADIOBUTTON);
+		layoutConstraits.gridx = 1;
+		layoutConstraits.gridy = row;
+		layoutConstraits.gridwidth = 1;
+		mainPanel.add(radioButtonTrPos, layoutConstraits);
+		
+		radioButtonTrSem = new JRadioButton("Semantic");
+		radioButtonTrSem.setPreferredSize(new Dimension(100, 20));
+		radioButtonTrSem.setSize(new Dimension(100, 20));
+		radioButtonTrSem.addActionListener(handler);
+		radioButtonTrSem.setActionCommand(FormMainHandler.CMD_RADIOBUTTON);
+		layoutConstraits.gridx = 2;
+		layoutConstraits.gridy = row;
+		layoutConstraits.gridwidth = 1;
+		mainPanel.add(radioButtonTrSem, layoutConstraits);
+		
+		radioGroupTrType = new ButtonGroup();
+		radioGroupTrType.add(radioButtonTrChar);
+		radioGroupTrType.add(radioButtonTrPos);
+		radioGroupTrType.add(radioButtonTrSem);
+	}
+	
+	private void componentDictionaryType (FormMainHandler handler, GridBagConstraints layoutConstraits, int row)
+	{
+		JLabel labelDictionary = new JLabel (" Dictionary:");
+		labelDictionary.setPreferredSize(new Dimension(100, 20));
+		labelDictionary.setSize(new Dimension(100, 20));
+		layoutConstraits.gridx = 0;
+		layoutConstraits.gridy = row;
+		mainPanel.add(labelDictionary, layoutConstraits);
+		
+		radioButtonDicGenerate = new JRadioButton("Generate");
+		radioButtonDicGenerate.setPreferredSize(new Dimension(100, 20));
+		radioButtonDicGenerate.setSize(new Dimension(100, 20));
+		radioButtonDicGenerate.addActionListener(handler);
+		radioButtonDicGenerate.setActionCommand(FormMainHandler.CMD_TRAINNN);
+		radioButtonDicGenerate.setEnabled(false);
+		layoutConstraits.gridx = 1;
+		layoutConstraits.gridy = row;
+		layoutConstraits.gridwidth = 1;
+		mainPanel.add(radioButtonDicGenerate , layoutConstraits);
+		
+		radioButtonDicUse = new JRadioButton("Default");
+		radioButtonDicUse.setPreferredSize(new Dimension(100, 20));
+		radioButtonDicUse.setSize(new Dimension(100, 20));
+		radioButtonDicUse.addActionListener(handler);
+		radioButtonDicUse.setActionCommand(FormMainHandler.CMD_TRAINNN);
+		radioButtonDicUse.setEnabled(false);
+		layoutConstraits.gridx = 2;
+		layoutConstraits.gridy = row;
+		layoutConstraits.gridwidth = 1;
+		mainPanel.add(radioButtonDicUse , layoutConstraits);
+		
+		radioGroupDicType = new ButtonGroup();
+		radioGroupDicType.add(radioButtonDicGenerate);
+		radioGroupDicType.add(radioButtonDicUse);
 	}
 	
 	private void componentNetButtons (FormMainHandler handler, GridBagConstraints layoutConstraits, int row)
@@ -176,7 +263,6 @@ public class FormMainPanel
 		mainPanel.add(labelNetEpochs, layoutConstraits);
 	}
 	
-	
 	private void componentStatisticsLabels (FormMainHandler handler, GridBagConstraints layoutConstraits, int row)
 	{
 		JLabel labelSequenceLength = new JLabel ("Sequence length");
@@ -237,6 +323,8 @@ public class FormMainPanel
 		textareaGeneratedText.setPreferredSize(new Dimension(300, 200));
 		textareaGeneratedText.setSize(new Dimension(300, 200));
 		textareaGeneratedText.setEditable(false);
+		textareaGeneratedText.setLineWrap(true);
+		textareaGeneratedText.setWrapStyleWord(true);
 		layoutConstraits.gridx = 0;
 		layoutConstraits.gridy = row;
 		layoutConstraits.gridwidth = 3;

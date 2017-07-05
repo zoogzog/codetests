@@ -15,7 +15,11 @@ import org.nd4j.linalg.factory.Nd4j;
 import codetest.lstm.text.TextTransformer;
 import codetest.lstm.text.TextTransformerCharacter;
 
-@SuppressWarnings("serial")
+/**
+ *  Class which contains time series sequence, presented as integers.
+ *  Handles generation of training set for ANN.
+ * @author Grushnikov Andrey
+ */
 public class SequenceStorage implements DataSetIterator 
 {
 	//---- Input sequence
@@ -131,7 +135,6 @@ public class SequenceStorage implements DataSetIterator
 
 	//------------------------------------------------------------
 
-
 	@Override
 	public boolean hasNext() 
 	{
@@ -143,7 +146,6 @@ public class SequenceStorage implements DataSetIterator
 	{
 		return next(this.setMinibatchSize);
 	}
-
 
 	@Override
 	public DataSet next(int num) 

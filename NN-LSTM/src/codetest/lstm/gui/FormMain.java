@@ -23,7 +23,7 @@ public class FormMain
 	private int windowStartX = 100;
 	private int windowStartY = 100;
 	private int windowWidth = 330;
-	private int windowHeight = 600;
+	private int windowHeight = 500;
 
 	private FormMainPanel panelAPP = null;
 

@@ -44,8 +44,6 @@ public class TextTokenizer
 	private boolean isLoadedTokenizer = false;
 	private boolean isLoadedPosTagger = false;
 	private boolean isLoadedDictionary = false;
-
-	public Map <String, String> posTester = new HashMap <String, String>();
 	
 	//---------------------------------------------------------------------------------------
 
@@ -87,43 +85,6 @@ public class TextTokenizer
 		posDescriptionTable.put("WP", "Wh≠pronoun");
 		posDescriptionTable.put("WP$", "Possessive wh≠pronoun");
 		posDescriptionTable.put("WRB", "Whadverb");
-		
-		posTester.put("CC", "or");
-		posTester.put("CD", "5");
-		posTester.put("DT", "a");
-		posTester.put("EX", "there");
-		posTester.put("FW", "asshole");
-		posTester.put("IN", "down");
-		posTester.put("JJ", "happy");
-		posTester.put("JJR", "happier");
-		posTester.put("JJS", "happiest");
-		posTester.put("LS", "#ls#");
-		posTester.put("MD", "can");
-		posTester.put("NN", "lama");
-		posTester.put("NNS", "lamas");
-		posTester.put("NNP", "Jack");
-		posTester.put("NNPS", "Jacks");
-		posTester.put("PDT", "#pdt#");
-		posTester.put("POS", "#pos#");
-		posTester.put("PRP", "it");
-		posTester.put("PRP$", "your");
-		posTester.put("RB", "slowly");
-		posTester.put("RBR", "slowlier");
-		posTester.put("RBS", "slowliest");
-		posTester.put("RP", "off");
-		posTester.put("SYM", "#");
-		posTester.put("TO", "to");
-		posTester.put("UH", "Interjection");
-		posTester.put("VB", "play");
-		posTester.put("VBD", "plays");
-		posTester.put("VBG", "playing");
-		posTester.put("VBN", "played");
-		posTester.put("VBP", "shine");
-		posTester.put("VBZ", "shines");
-		posTester.put("WDT", "which");
-		posTester.put("WP", "whose");
-		posTester.put("WP$", "what");
-		posTester.put("WRB", "where");
 		
 		//---- Added
 		posDescriptionTable.put("EOS", "End of sentence");
@@ -236,24 +197,37 @@ public class TextTokenizer
 
 	//---------------------------------------------------------------------------------------
 
-	public String[] generateTokens (String str, boolean isExtendNegation)
+	public String[] generateTokens (String str, boolean isUnwrapShort)
 	{
 		if (!isLoadedTokenizer) { return null; }
 
-		String[] negationListShort = {"can't", "couldn't", "wouldn't", "shouldn't", "wont", "don't", "doesn't"};
-		String[] negationListLong = {"can not", "could not", "would not", "should not", "will not", "do not", "does not"};
+		String[] wordShort = {"can't", "couldn't", "wouldn't", "shouldn't", "wont", "don't", "doesn't", "'m", "'s", "'re","'ve"};
+		String[] wordLong = {"can not", "could not", "would not", "should not", "will not", "do not", "does not", " am", " is", "are", " have"};
 
+		char[] charsNotAllowed = {'\'', ',', '_', '-', '"', '$', '{', '}', '(', ')', '^', '&', '%', 'Åg', '[', ']', ';', ':', '<', '>', '*'};
+		char[] charsStop = {'.', '!', '?'};
+		
 		String strX = str;
 
-		if (isExtendNegation)
+		if (isUnwrapShort)
 		{
-			for (int i = 0; i < negationListShort.length; i++)
+			for (int i = 0; i < wordShort.length; i++)
 			{
-				strX = strX.replaceAll(negationListShort[i], negationListLong[i]);
-				strX = strX.replaceAll("--", " ");
+				strX = strX.replaceAll(wordShort[i], wordLong[i]);
 			}
 		}
+		
+		for (int p = 0; p < charsStop.length; p++)
+		{
+			strX = strX.replace(charsStop[p], ' ');
+		}
+		
+		for (int k = 0; k < charsNotAllowed.length; k++)
+		{
+			strX = strX.replace(charsNotAllowed[k], ' ');
+		}
 
+		strX = strX.toLowerCase();
 
 		String tokens[] = tokenizer.tokenize(strX);
 
@@ -290,6 +264,7 @@ public class TextTokenizer
 	
 	public int getPosIndex (String pos)
 	{
+		if (pos.equals("")) { return -1; }
 		if (posTableLookupStr.containsKey(pos)) { return posTableLookupStr.get(pos); }
 		return -1;
 	}
@@ -359,28 +334,37 @@ public class TextTokenizer
 	//---- reduce the size of the vocabulary
 	//---------------------------------------------------------------------------------------
 	
+	private String[] refineTokens (String[] tk, String[] tkPos)
+	{
+		if (tk.length != tkPos.length) { return null; }
+		
+		Vector <String> output = new Vector <String>();
+		
+		for (int i = 0; i < tk.length; i++)
+		{
+			
+		}
+		
+		
+		return output.toArray(new String[output.size()]);
+	}
+	
+	
 	private String getTransformToDictionaryForm (String word)
 	{
 		String wordPos = generatePos(word);
 
 		switch (wordPos)
 		{
-		case "RB": word = getTransformRB(word); break;
+			case "NNP": word = getTransformNNP(word);
 		}
 
 		return word;
 	}
-
-	//---- RB: Adverb
-	private String getTransformRB (String word)
-	{
-		if (word.length() > 3) 
-		{
-			//---- Assume here that adverb and on 'ly'
-			word = word.substring(0, word.length() - 2);
-		}
-
-		return word;
+	
+	private String getTransformNNP(String word)
+	{	
+		return "juancarlos";
 	}
 
 	//---------------------------------------------------------------------------------------
@@ -418,36 +402,54 @@ public class TextTokenizer
 		{
 			TextTokenizer txtdriver = new TextTokenizer(true, true, false);
 
-			String testStr = 
-"A towel, it says, is about the most  massively  useful  thing  an " +
-"interstellar  hitch hiker can have. Partly it has great practical " + 
-"value - you can wrap it around you for warmth as you bound across " + 
-"the cold moons of Jaglan Beta; you can lie on it on the brilliant " + 
-"marble-sanded beaches of Santraginus V, inhaling  the  heady  sea " + 
-"vapours;  you can sleep under it beneath the stars which shine so " + 
-"redly on the desert world of Kakrafoon; use it  to  sail  a  mini" + 
-"raft  down  the slow heavy river Moth; wet it for use in hand-to- " + 
-"hand-combat; wrap it round your head to ward off noxious fumes or " + 
-"to  avoid  the  gaze of the Ravenous Bugblatter Beast of Traal (a " + 
-"mindboggingly stupid animal, it assumes that if you can't see it, " + 
-"it  can't  see  you - daft as a bush, but very ravenous); you can " + 
-"wave your towel in emergencies  as  a  distress  signal,  and  of " + 
-"course  dry  yourself  off  with it if it still seems to be clean " + 
-"enough.";
-			String[] tk = txtdriver.generateTokens(testStr, true);
+			Map <String, Integer> mp = new HashMap <String, Integer>();
+			Map <String, Integer> pp = new HashMap <String, Integer>();
+			
+			BufferedReader bfr = new BufferedReader(new FileReader("data-text/fiction.txt"));
+			
+			String line = "";
+			
+			while ((line = bfr.readLine()) != null)
+			{
+			
+			String[] tk = txtdriver.generateTokens(line, true);
 
 			String[] pos = txtdriver.generatePos(tk);
 			
-			for (int i = 0; i < pos.length; i++)
+			String[] tkRef = txtdriver.refineTokens(tk, pos);
+			
+		//	System.out.println(line);
+			for (int k = 0; k < tk.length; k++)
 			{
-				int posIndex = txtdriver.getPosIndex(pos[i]);
+				int id = txtdriver.getPosIndex(pos[k]);
 				
-				if (posIndex != -1)
+				if (id != -1)
 				{
-					System.out.println(tk[i] + " " + pos[i] + " " + posIndex);
+				//	System.out.print("[" + tk[k] + "," + pos[k] + "] ");
+				if (!mp.containsKey(tk[k])) 
+				{
+					mp.put(tk[k], 0); 
+					
+					if (pp.containsKey(pos[k])) { int v = pp.get(pos[k]); pp.put(pos[k], v + 1); }
+					else { pp.put(pos[k], 1); }
 				}
+				
+				}
+				
+				
 			}
-
+			System.out.println();
+			
+			}
+			
+			int sum = 0;
+			for (String key : pp.keySet())
+			{
+				System.out.println(key + " -> " + txtdriver.getPosDescriptor(key) + " : " + pp.get(key));
+				sum += pp.get(key);
+			}
+			
+			System.out.println("Total dict size: " + mp.size() + " <> " + sum);
 
 		}
 		catch (Exception e) { e.printStackTrace();} 

@@ -65,7 +65,7 @@ public class TextTransformerPos implements TextTransformer
 			
 			
 			
-			output = output + tokenizer.posTester.get(posElement) + ";";
+			output = output + posElement + ";";
 		}
 		
 		

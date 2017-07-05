@@ -5,6 +5,11 @@ import java.awt.Rectangle;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
+/**
+ * Main entry point for the application.
+ * @author Grushnikov Andrey
+ */
+
 public class MainLauncherGui 
 {
 	public static void main(String args[])

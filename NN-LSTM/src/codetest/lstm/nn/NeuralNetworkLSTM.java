@@ -21,7 +21,7 @@ public class NeuralNetworkLSTM
 	private MultiLayerNetwork nnNetwork = null;
 
 	//----DEFAULT is 200
-	private final int lstmLayerSize = 200;					//Number of units in each GravesLSTM layer
+	private final int lstmLayerSize = 500;					//Number of units in each GravesLSTM layer
 	private final int tbpttLength = 50;                     //Length for truncated backpropagation through time. i.e., do parameter updates ever 50 characters
 
 	

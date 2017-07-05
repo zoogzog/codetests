@@ -1,6 +1,6 @@
 package codetest.lstm.text;
 
-public class DictionaryItem 
+public class VocabularyItem 
 {
 	//---- The word itself
 	public String word;
@@ -17,12 +17,12 @@ public class DictionaryItem
 	//---- Frequency
 	public double wordFrequency;
 	
-	public DictionaryItem ()
+	public VocabularyItem ()
 	{
 		
 	}
 	
-	public DictionaryItem (String word, int wordIndex, int wordPOS, int wordLabel)
+	public VocabularyItem (String word, int wordIndex, int wordPOS, int wordLabel)
 	{
 		this.word = word;
 		this.wordIndex = wordIndex;

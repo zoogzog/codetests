@@ -6,7 +6,7 @@ import java.awt.event.ActionListener;
 import javax.swing.JFileChooser;
 
 import codetest.lstm.background.TaskBackground;
-import codetest.lstm.core.Monkey;
+import codetest.lstm.core.CoreTrainer;
 import codetest.lstm.nn.Settings;
 import freemarker.core.CommandLine;
 
@@ -18,13 +18,13 @@ public class FormMainHandler implements ActionListener, CallbackIteration
 	
 	public static final String CMD_NNSAVE = "cmd-save";
 	public static final String CMD_NNLOAD = "cmd-load";
+	
+	public static final String CMD_RADIOBUTTON = "cmd-radio";
 
 	private FormMain fmlnk = null;
-	private Monkey monkey = null;
+	private CoreTrainer monkey = null;
 
 	private String filePath = "";
-
-	private final int DEFAULT_OUTTEXT_STRLENGTH = 55;
 	
 	//----------------------------------------------------------------------------
 
@@ -35,7 +35,7 @@ public class FormMainHandler implements ActionListener, CallbackIteration
 
 	//----------------------------------------------------------------------------
 
-	public void init (FormMain lnk, Monkey monkey)
+	public void init (FormMain lnk, CoreTrainer monkey)
 	{
 		this.fmlnk = lnk;
 		this.monkey = monkey;
@@ -57,6 +57,7 @@ public class FormMainHandler implements ActionListener, CallbackIteration
 			case CMD_GENERATE: commandGenerate(); break;
 			case CMD_NNSAVE: commandSaveNN(); break;
 			case CMD_NNLOAD: commmandLoadNN(); break;
+			case CMD_RADIOBUTTON: commandRadioButtonClick(); break;
 			}
 
 		}
@@ -95,9 +96,22 @@ public class FormMainHandler implements ActionListener, CallbackIteration
 			fmlnk.getComponentPanel().buttonSaveNet.setEnabled(false);
 			fmlnk.getComponentPanel().buttonLoadNet.setEnabled(false);
 
+			int transformer = TaskBackground.TRANSFORMER_CHAR;
+			
+			//---- These radio buttons are in a group, lazily assigning value here
+			if (fmlnk.getComponentPanel().radioButtonTrChar.isSelected()) { transformer = TaskBackground.TRANSFORMER_CHAR; }
+			if (fmlnk.getComponentPanel().radioButtonTrPos.isSelected()) { transformer = TaskBackground.TRANSFORMER_POS; }
+			if (fmlnk.getComponentPanel().radioButtonTrSem.isSelected()) { transformer = TaskBackground.TRANSFORMER_SEMANTIC; }
+			
+			int dictionary = TaskBackground.DICTIONARY_GENERATE;
+			
+			//---- These radio buttons are in a group, lazily assigning value here
+			if (fmlnk.getComponentPanel().radioButtonDicGenerate.isSelected()) { dictionary = TaskBackground.DICTIONARY_GENERATE; }
+			if (fmlnk.getComponentPanel().radioButtonDicUse.isSelected()) { dictionary = TaskBackground.DICTIONARY_USE; }
+			
 			TaskBackground task = new TaskBackground();
-
-			task.setParameters(monkey, this, filePath, epochs, minibatchsize, seqlength);
+			
+			task.setParameters(monkey, this, filePath, epochs, minibatchsize, seqlength, transformer, dictionary);
 			task.execute();
 		}
 		catch (Exception e) { return; }
@@ -149,6 +163,20 @@ public class FormMainHandler implements ActionListener, CallbackIteration
 			monkey.loadNN(path);
 			
 			fmlnk.getComponentPanel().buttonGenerateSample.setEnabled(true);
+		}
+	}
+	
+	private void commandRadioButtonClick ()
+	{
+		if (fmlnk.getComponentPanel().radioButtonTrSem.isSelected())
+		{
+			fmlnk.getComponentPanel().radioButtonDicGenerate.setEnabled(true);
+			fmlnk.getComponentPanel().radioButtonDicUse.setEnabled(true);
+		}
+		else
+		{
+			fmlnk.getComponentPanel().radioButtonDicGenerate.setEnabled(false);
+			fmlnk.getComponentPanel().radioButtonDicUse.setEnabled(false);
 		}
 	}
 	

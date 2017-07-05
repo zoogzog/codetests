@@ -22,8 +22,6 @@ public class ClassifierKMeans
 
 	public void run (int classCount, int iterationMax, List<INDArray> vectorSet)
 	{
-
-		
 		List<Point> pointsLst = Point.toPoints(vectorSet);
 		
 		
