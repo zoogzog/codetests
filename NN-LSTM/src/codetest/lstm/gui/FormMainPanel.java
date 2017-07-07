@@ -10,8 +10,10 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.ScrollPaneConstants;
 
 import org.jfree.layout.LCBLayout;
 import org.w3c.dom.ls.LSLoadEvent;
@@ -33,6 +35,13 @@ public class FormMainPanel
 	public JTextField textfieldIterationStep;
 	public JTextField textfieldTotalProgress;
 
+	//---- Dimension of a vector representation of a word
+	public JTextField textfieldSemanticWTV;
+	//---- Number of classes obtained from K-Means classification
+	public JTextField textfieldSemanticClass;
+	//---- Number of iterations to perform classification with K-Means
+	public JTextField textfieldSemanticIteration;
+	
 	public JButton buttonSelectFile;
 	public JButton buttonTrainNet;
 	public JButton buttonSaveNet;
@@ -102,6 +111,11 @@ public class FormMainPanel
 
 	}
 	
+	private void componentSemanticLabels (FormMainHandler handler, GridBagConstraints layoutConstraits, int row)
+	{
+		
+	}
+	
 	private void componentTransformMethod (FormMainHandler handler, GridBagConstraints layoutConstraits, int row)
 	{
 		radioButtonTrChar = new JRadioButton("Character");
@@ -109,6 +123,7 @@ public class FormMainPanel
 		radioButtonTrChar.setSize(new Dimension(100, 20));
 		radioButtonTrChar.addActionListener(handler);
 		radioButtonTrChar.setActionCommand(FormMainHandler.CMD_RADIOBUTTON);
+		radioButtonTrChar.setSelected(true);
 		layoutConstraits.gridx = 0;
 		layoutConstraits.gridy = row;
 		layoutConstraits.gridwidth = 1;
@@ -155,6 +170,7 @@ public class FormMainPanel
 		radioButtonDicGenerate.addActionListener(handler);
 		radioButtonDicGenerate.setActionCommand(FormMainHandler.CMD_TRAINNN);
 		radioButtonDicGenerate.setEnabled(false);
+		radioButtonDicGenerate.setSelected(true);
 		layoutConstraits.gridx = 1;
 		layoutConstraits.gridy = row;
 		layoutConstraits.gridwidth = 1;
@@ -320,16 +336,23 @@ public class FormMainPanel
 		//==================================================================
 
 		textareaGeneratedText = new JTextArea();
-		textareaGeneratedText.setPreferredSize(new Dimension(300, 200));
-		textareaGeneratedText.setSize(new Dimension(300, 200));
+		//textareaGeneratedText.setPreferredSize(new Dimension(300, 200));
+		//textareaGeneratedText.setSize(new Dimension(300, 200));
 		textareaGeneratedText.setEditable(false);
 		textareaGeneratedText.setLineWrap(true);
 		textareaGeneratedText.setWrapStyleWord(true);
 		layoutConstraits.gridx = 0;
 		layoutConstraits.gridy = row;
 		layoutConstraits.gridwidth = 3;
-		mainPanel.add(textareaGeneratedText, layoutConstraits);
+	
 
+		JScrollPane scrollpane = new JScrollPane(textareaGeneratedText);
+		scrollpane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		scrollpane.setPreferredSize(new Dimension(300, 200));
+		scrollpane.setSize(new Dimension(300, 200));
+	
+		
+		mainPanel.add(scrollpane, layoutConstraits);
 		//==================================================================
 
 		buttonGenerateSample = new JButton("Generate");

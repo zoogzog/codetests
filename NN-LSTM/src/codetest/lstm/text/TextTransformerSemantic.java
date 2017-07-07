@@ -111,9 +111,10 @@ public class TextTransformerSemantic implements TextTransformer
 			}
 			
 			bfr.close();
+			
+			return output;
 		}
 		catch (Exception e) { e.printStackTrace(); }
-		
 		
 		return null;
 	}
@@ -125,7 +126,7 @@ public class TextTransformerSemantic implements TextTransformer
 		//---- Check if the vocabulary is initialized 
 		//---- If not, then try to load it using the default path
 		//---- If can not load, return empty string
-		if (vocabulary == null)
+		if (!vocabulary.getIsLoaded())
 		{
 			if (new File(VOCABULARY_PATH).exists()) { vocabularyLoad(VOCABULARY_PATH); }
 			else { return ""; }
@@ -210,6 +211,7 @@ public class TextTransformerSemantic implements TextTransformer
 	public void vocabularyLoad (String path)
 	{
 		vocabulary.load(path);
+		vocabulary.labelQueryInit(KM_CLUSTER_COUNT);
 	}
 	
 }
